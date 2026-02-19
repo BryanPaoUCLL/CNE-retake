@@ -33,8 +33,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 			if (mode === "signup") {
 				const res = await AccountService.create({ username, email, password });
 				if (!res.ok) {
-					const data = await res.json();
-					throw new Error(data.message || "Failed to create account");
+					let message = "Failed to create account";
+					try {
+						const data = await res.json();
+						message = data.message || message;
+					} catch {
+						// response may not have JSON body
+					}
+					throw new Error(message);
 				}
 			}
 

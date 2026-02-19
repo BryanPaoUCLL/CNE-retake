@@ -1,12 +1,33 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ArtworkSummaryDto, Page } from "../src/types";
 import ArtworkService from "../src/services/artwork.service";
 import ArtworkGrid from "../src/components/ArtworkGrid";
 import { TrendingUp, Sparkles, Clock } from "lucide-react";
 
 type SortOption = "newest" | "popular" | "price-low" | "price-high";
+
+/* Scroll-reveal hook */
+function useReveal() {
+	const ref = useRef<HTMLElement>(null);
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					el.classList.add("visible");
+					observer.unobserve(el);
+				}
+			},
+			{ threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, []);
+	return ref;
+}
 
 export default function HomePage() {
 	const [artworks, setArtworks] = useState<ArtworkSummaryDto[]>([]);
@@ -79,14 +100,20 @@ export default function HomePage() {
 		}
 	};
 
+	const trendingRef = useReveal();
+	const galleryRef = useReveal();
+
 	return (
 		<div className="min-h-screen">
 			{/* Hero Section */}
 			<section className="relative overflow-hidden bg-zinc-50 dark:bg-zinc-950">
 				{/* Background decoration */}
 				<div className="absolute inset-0 opacity-40 dark:opacity-20">
-					<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-amber-200 to-rose-200 dark:from-amber-900/30 dark:to-rose-900/30 rounded-full blur-3xl" />
-					<div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-violet-200 to-cyan-200 dark:from-violet-900/30 dark:to-cyan-900/30 rounded-full blur-3xl" />
+					<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-amber-200 to-rose-200 dark:from-amber-900/30 dark:to-rose-900/30 rounded-full blur-3xl animate-pulse-glow" />
+					<div
+						className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-violet-200 to-cyan-200 dark:from-violet-900/30 dark:to-cyan-900/30 rounded-full blur-3xl animate-pulse-glow"
+						style={{ animationDelay: "2s" }}
+					/>
 				</div>
 
 				<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
@@ -129,59 +156,14 @@ export default function HomePage() {
 				</div>
 			</section>
 
-			{/* Trending Section */}
-			{trending.length > 0 && (
-				<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-b border-zinc-200 dark:border-zinc-800">
-					<div className="flex items-center gap-3 mb-10">
-						<div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-							<TrendingUp
-								className="text-amber-600 dark:text-amber-400"
-								size={20}
-							/>
-						</div>
-						<h2 className="font-[var(--font-bricolage)] text-2xl font-bold text-zinc-900 dark:text-white">
-							Trending Now
-						</h2>
-					</div>
-					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-						{trending.map((artwork, i) => (
-							<a
-								key={artwork.id}
-								href={`/artwork/${artwork.id}`}
-								className="group relative aspect-square rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800"
-							>
-								<img
-									src={artwork.imageUrl || "/placeholder.jpg"}
-									alt={artwork.title}
-									className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-								/>
-								<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-								<div className="absolute top-4 left-4 w-9 h-9 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm rounded-full flex items-center justify-center text-sm font-bold text-zinc-900 dark:text-white shadow-lg">
-									{i + 1}
-								</div>
-								<div className="absolute bottom-0 left-0 right-0 p-5 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-									<p className="text-white font-medium truncate text-lg">{artwork.title}</p>
-									<p className="text-white/70 text-sm mt-1">{artwork.creator.username}</p>
-								</div>
-							</a>
-						))}
-					</div>
-				</section>
-			)}
-
 			{/* Gallery Section */}
 			<section
+				ref={galleryRef}
 				id="gallery"
-				className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
+				className="reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
 			>
 				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
 					<div className="flex items-center gap-3">
-						<div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-							<Sparkles
-								className="text-violet-600 dark:text-violet-400"
-								size={20}
-							/>
-						</div>
 						<h2 className="font-[var(--font-bricolage)] text-2xl font-bold text-zinc-900 dark:text-white">
 							All Artworks
 						</h2>

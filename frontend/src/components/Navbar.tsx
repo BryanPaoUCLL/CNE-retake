@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
-import { Search, User, ShoppingBag, Plus, LogOut, Menu, X, Flame, Info, Sparkles } from "lucide-react";
+import { Search, User, ShoppingBag, Plus, LogOut, Menu, X } from "lucide-react";
 
 interface NavbarProps {
 	onSearchClick?: () => void;
@@ -63,16 +63,14 @@ export default function Navbar({ onSearchClick, onLoginClick }: NavbarProps) {
 						</Link>
 						<Link
 							href="/trending"
-							className="flex items-center gap-1.5 px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 rounded-full"
+							className="px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 rounded-full"
 						>
-							<Flame size={14} />
 							Trending
 						</Link>
 						<Link
 							href="/about"
-							className="flex items-center gap-1.5 px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 rounded-full"
+							className="px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 rounded-full"
 						>
-							<Info size={14} />
 							About
 						</Link>
 					</div>
@@ -129,9 +127,8 @@ export default function Navbar({ onSearchClick, onLoginClick }: NavbarProps) {
 								</button>
 								<button
 									onClick={onLoginClick}
-									className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-900/20 dark:hover:shadow-white/20"
+									className="hidden sm:flex items-center px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-900/20 dark:hover:shadow-white/20"
 								>
-									<Sparkles size={16} />
 									Get Started
 								</button>
 							</>
@@ -165,18 +162,16 @@ export default function Navbar({ onSearchClick, onLoginClick }: NavbarProps) {
 						</Link>
 						<Link
 							href="/trending"
-							className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors flex items-center gap-2"
+							className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors"
 							onClick={() => setMobileMenuOpen(false)}
 						>
-							<Flame size={16} />
 							Trending
 						</Link>
 						<Link
 							href="/about"
-							className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors flex items-center gap-2"
+							className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors"
 							onClick={() => setMobileMenuOpen(false)}
 						>
-							<Info size={16} />
 							About
 						</Link>
 						{user ? (
@@ -215,9 +210,8 @@ export default function Navbar({ onSearchClick, onLoginClick }: NavbarProps) {
 										setMobileMenuOpen(false);
 										onLoginClick?.();
 									}}
-									className="mt-2 px-4 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl text-center font-medium flex items-center justify-center gap-2"
+									className="mt-2 px-4 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl text-center font-medium"
 								>
-									<Sparkles size={16} />
 									Get Started
 								</button>
 							</>
