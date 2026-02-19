@@ -37,6 +37,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html"
                 ).permitAll()
+                // Public registration
+                .requestMatchers(HttpMethod.POST, "/accounts").permitAll()
                 // Public GET endpoints
                 .requestMatchers(HttpMethod.GET,
                     "/artworks",

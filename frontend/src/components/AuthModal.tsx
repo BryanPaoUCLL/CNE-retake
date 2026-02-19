@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { X, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import AccountService from "../services/account.service";
@@ -12,6 +13,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 	const [mode, setMode] = useState<"login" | "signup">("login");
+	const [identifier, setIdentifier] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [username, setUsername] = useState("");
@@ -36,9 +38,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 				}
 			}
 
-			const success = await login(email, password, remember);
+			// Use email as identifier for login after signup, or the identifier field for regular login
+			const loginIdentifier = mode === "signup" ? email : identifier;
+			const success = await login(loginIdentifier, password, remember);
 			if (success) {
 				onClose();
+				setIdentifier("");
 				setEmail("");
 				setPassword("");
 				setUsername("");
@@ -76,14 +81,21 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 				<div className="p-8 pt-12">
 					{/* Header */}
 					<div className="text-center mb-8">
-						<div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-xl flex items-center justify-center">
-							<span className="text-white font-bold text-xl">A</span>
+						<div className="w-14 h-14 mx-auto mb-4 relative">
+							<Image
+								src="/logo/brandmark.png"
+								alt="Galerique"
+								fill
+								className="object-contain"
+							/>
 						</div>
-						<h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-							{mode === "login" ? "Welcome back" : "Create account"}
+						<h2 className="font-[var(--font-bricolage)] text-2xl font-extrabold text-zinc-900 dark:text-white">
+							{mode === "login" ? "Welcome back" : "Join Galerique"}
 						</h2>
 						<p className="mt-2 text-zinc-500 dark:text-zinc-400">
-							{mode === "login" ? "Sign in to continue to Arty" : "Join our creative community"}
+							{mode === "login"
+								? "Sign in to continue your journey"
+								: "Discover and collect extraordinary art"}
 						</p>
 					</div>
 
@@ -99,35 +111,50 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 						onSubmit={handleSubmit}
 						className="space-y-4"
 					>
-						{mode === "signup" && (
+						{mode === "signup" ? (
+							<>
+								<div>
+									<label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+										Username
+									</label>
+									<input
+										type="text"
+										value={username}
+										onChange={(e) => setUsername(e.target.value)}
+										placeholder="Choose a username"
+										className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white"
+										required
+									/>
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+										Email
+									</label>
+									<input
+										type="email"
+										value={email}
+										onChange={(e) => setEmail(e.target.value)}
+										placeholder="you@example.com"
+										className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white"
+										required
+									/>
+								</div>
+							</>
+						) : (
 							<div>
 								<label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-									Username
+									Email or Username
 								</label>
 								<input
 									type="text"
-									value={username}
-									onChange={(e) => setUsername(e.target.value)}
-									placeholder="Your username"
-									className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+									value={identifier}
+									onChange={(e) => setIdentifier(e.target.value)}
+									placeholder="Enter your email or username"
+									className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white"
 									required
 								/>
 							</div>
 						)}
-
-						<div>
-							<label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-								Email
-							</label>
-							<input
-								type="email"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								placeholder="you@example.com"
-								className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
-								required
-							/>
-						</div>
 
 						<div>
 							<label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
@@ -139,7 +166,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									placeholder="••••••••"
-									className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 pr-12"
+									className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white pr-12"
 									required
 								/>
 								<button
@@ -159,7 +186,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 									id="remember"
 									checked={remember}
 									onChange={(e) => setRemember(e.target.checked)}
-									className="w-4 h-4 rounded border-zinc-300 text-violet-500 focus:ring-violet-500"
+									className="w-4 h-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 dark:focus:ring-white"
 								/>
 								<label
 									htmlFor="remember"
@@ -189,7 +216,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 										setMode("signup");
 										setError("");
 									}}
-									className="text-violet-500 hover:text-violet-600 font-medium"
+									className="text-zinc-900 dark:text-white hover:underline font-medium"
 								>
 									Sign up
 								</button>
@@ -202,7 +229,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 										setMode("login");
 										setError("");
 									}}
-									className="text-violet-500 hover:text-violet-600 font-medium"
+									className="text-zinc-900 dark:text-white hover:underline font-medium"
 								>
 									Sign in
 								</button>

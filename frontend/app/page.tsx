@@ -82,70 +82,86 @@ export default function HomePage() {
 	return (
 		<div className="min-h-screen">
 			{/* Hero Section */}
-			<section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-fuchsia-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-					<div className="text-center max-w-3xl mx-auto">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-zinc-900 dark:text-white leading-tight">
+			<section className="relative overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+				{/* Background decoration */}
+				<div className="absolute inset-0 opacity-40 dark:opacity-20">
+					<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-amber-200 to-rose-200 dark:from-amber-900/30 dark:to-rose-900/30 rounded-full blur-3xl" />
+					<div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-violet-200 to-cyan-200 dark:from-violet-900/30 dark:to-cyan-900/30 rounded-full blur-3xl" />
+				</div>
+
+				<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+					<div className="text-center max-w-4xl mx-auto">
+						<div className="animate-fade-in">
+							<span className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm rounded-full text-sm text-zinc-600 dark:text-zinc-400 mb-6 border border-zinc-200 dark:border-zinc-800">
+								<Sparkles
+									size={14}
+									className="text-amber-500"
+								/>
+								<span>The Luxury Digital Art Gallery</span>
+							</span>
+						</div>
+						<h1 className="font-[var(--font-bricolage)] text-5xl sm:text-6xl lg:text-7xl font-extrabold text-zinc-900 dark:text-white leading-[1.1] animate-fade-in stagger-1">
 							Discover{" "}
-							<span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">
-								extraordinary
+							<span className="bg-gradient-to-r from-amber-600 via-rose-600 to-violet-600 bg-clip-text text-transparent">
+								Extraordinary
 							</span>{" "}
-							digital art
+							Art
 						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-							Explore a curated collection of stunning digital artworks from talented artists around the
-							world. Find your next masterpiece.
+						<p className="mt-8 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto animate-fade-in stagger-2">
+							Explore a curated collection of stunning digital artworks from visionary artists worldwide.
+							Find your next masterpiece.
 						</p>
-						<div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+						<div className="mt-10 flex flex-wrap items-center justify-center gap-4 animate-fade-in stagger-3">
 							<a
 								href="#gallery"
-								className="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
+								className="px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-300 hover:shadow-xl hover:shadow-zinc-900/20 dark:hover:shadow-white/10"
 							>
 								Explore Gallery
 							</a>
 							<a
 								href="/trending"
-								className="px-6 py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-full font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+								className="px-8 py-4 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-full font-medium border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300"
 							>
 								View Trending
 							</a>
 						</div>
 					</div>
 				</div>
-
-				{/* Background decoration */}
-				<div className="absolute top-0 left-1/4 w-72 h-72 bg-violet-200 dark:bg-violet-900/20 rounded-full blur-3xl opacity-50" />
-				<div className="absolute bottom-0 right-1/4 w-72 h-72 bg-fuchsia-200 dark:bg-fuchsia-900/20 rounded-full blur-3xl opacity-50" />
 			</section>
 
 			{/* Trending Section */}
 			{trending.length > 0 && (
-				<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-					<div className="flex items-center gap-2 mb-8">
-						<TrendingUp
-							className="text-violet-500"
-							size={24}
-						/>
-						<h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Trending Now</h2>
+				<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-b border-zinc-200 dark:border-zinc-800">
+					<div className="flex items-center gap-3 mb-10">
+						<div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+							<TrendingUp
+								className="text-amber-600 dark:text-amber-400"
+								size={20}
+							/>
+						</div>
+						<h2 className="font-[var(--font-bricolage)] text-2xl font-bold text-zinc-900 dark:text-white">
+							Trending Now
+						</h2>
 					</div>
-					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 						{trending.map((artwork, i) => (
 							<a
 								key={artwork.id}
 								href={`/artwork/${artwork.id}`}
-								className="group relative aspect-square rounded-2xl overflow-hidden"
+								className="group relative aspect-square rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800"
 							>
 								<img
 									src={artwork.imageUrl || "/placeholder.jpg"}
 									alt={artwork.title}
-									className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+									className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
 								/>
-								<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-								<div className="absolute top-3 left-3 w-8 h-8 bg-white/90 dark:bg-zinc-800/90 rounded-full flex items-center justify-center text-sm font-bold text-zinc-900 dark:text-white">
+								<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+								<div className="absolute top-4 left-4 w-9 h-9 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm rounded-full flex items-center justify-center text-sm font-bold text-zinc-900 dark:text-white shadow-lg">
 									{i + 1}
 								</div>
-								<div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-									<p className="text-white font-medium truncate">{artwork.title}</p>
+								<div className="absolute bottom-0 left-0 right-0 p-5 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+									<p className="text-white font-medium truncate text-lg">{artwork.title}</p>
+									<p className="text-white/70 text-sm mt-1">{artwork.creator.username}</p>
 								</div>
 							</a>
 						))}
@@ -156,19 +172,23 @@ export default function HomePage() {
 			{/* Gallery Section */}
 			<section
 				id="gallery"
-				className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+				className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
 			>
-				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-					<div className="flex items-center gap-2">
-						<Sparkles
-							className="text-violet-500"
-							size={24}
-						/>
-						<h2 className="text-2xl font-bold text-zinc-900 dark:text-white">All Artworks</h2>
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+					<div className="flex items-center gap-3">
+						<div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+							<Sparkles
+								className="text-violet-600 dark:text-violet-400"
+								size={20}
+							/>
+						</div>
+						<h2 className="font-[var(--font-bricolage)] text-2xl font-bold text-zinc-900 dark:text-white">
+							All Artworks
+						</h2>
 					</div>
 
 					{/* Sort tabs */}
-					<div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-full p-1">
+					<div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-full p-1.5 border border-zinc-200 dark:border-zinc-800">
 						{[
 							{ key: "newest", label: "Newest", icon: Clock },
 							{ key: "popular", label: "Popular", icon: TrendingUp },
@@ -176,10 +196,10 @@ export default function HomePage() {
 							<button
 								key={key}
 								onClick={() => handleSortChange(key as SortOption)}
-								className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+								className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
 									sort === key
-										? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
-										: "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+										? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm"
+										: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
 								}`}
 							>
 								<Icon size={14} />
@@ -197,19 +217,19 @@ export default function HomePage() {
 
 				{/* Load more */}
 				{hasMore && !loading && artworks.length > 0 && (
-					<div className="flex justify-center mt-12">
+					<div className="flex justify-center mt-16">
 						<button
 							onClick={() => loadArtworks(page + 1)}
-							className="px-8 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-full font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+							className="px-10 py-4 bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-full font-medium border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 hover:shadow-lg"
 						>
-							Load more
+							Load more artworks
 						</button>
 					</div>
 				)}
 
 				{loading && artworks.length > 0 && (
-					<div className="flex justify-center mt-12">
-						<div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+					<div className="flex justify-center mt-16">
+						<div className="w-10 h-10 border-2 border-zinc-300 dark:border-zinc-700 border-t-zinc-900 dark:border-t-white rounded-full animate-spin" />
 					</div>
 				)}
 			</section>

@@ -1,13 +1,11 @@
-import { LoginDto, AccountDto } from "../types";
-
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const login = (credentials: LoginDto, remember: boolean = false) => {
+const login = (identifier: string, password: string, remember: boolean = false) => {
 	return fetch(`${API_URL}/auth/login?remember=${remember}`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		credentials: "include",
-		body: JSON.stringify(credentials),
+		body: JSON.stringify({ identifier, password }),
 	});
 };
 

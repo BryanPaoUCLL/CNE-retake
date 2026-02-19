@@ -8,7 +8,7 @@ import AccountService from "../services/account.service";
 interface AuthContextType {
 	user: AccountDto | null;
 	loading: boolean;
-	login: (email: string, password: string, remember?: boolean) => Promise<boolean>;
+	login: (identifier: string, password: string, remember?: boolean) => Promise<boolean>;
 	logout: () => Promise<void>;
 	refreshUser: () => Promise<void>;
 }
@@ -41,8 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		refreshUser().finally(() => setLoading(false));
 	}, [refreshUser]);
 
-	const login = async (email: string, password: string, remember = false) => {
-		const res = await AuthService.login({ email, password }, remember);
+	const login = async (identifier: string, password: string, remember = false) => {
+		const res = await AuthService.login(identifier, password, remember);
 		if (res.ok) {
 			await refreshUser();
 			return true;
