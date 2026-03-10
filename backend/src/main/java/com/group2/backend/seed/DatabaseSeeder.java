@@ -2,21 +2,27 @@ package com.group2.backend.seed;
 
 import com.group2.backend.model.Account;
 import com.group2.backend.model.Artwork;
+import com.group2.backend.model.ArtworkImage;
 import com.group2.backend.repository.AccountRepository;
 import com.group2.backend.repository.ArtworkImageRepository;
 import com.group2.backend.repository.ArtworkLikeRepository;
 import com.group2.backend.repository.ArtworkRepository;
 import com.group2.backend.repository.PurchaseRepository;
 import com.group2.backend.repository.TokenRepository;
+import com.group2.backend.service.ArtworkImageProcessingService;
+import com.group2.backend.service.BlobStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -36,6 +42,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ArtworkLikeRepository artworkLikeRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BlobStorageService blobStorageService;
+    private final ArtworkImageProcessingService artworkImageProcessingService;
 
     // ──────────────────────────────────────────────
     // Artist data
@@ -327,12 +335,11 @@ public class DatabaseSeeder implements CommandLineRunner {
     };
 
     @Override
-    @Transactional
     public void run(String... args) {
-        log.info("Cleaning database (dev seeder)...");
+        log.info("Cleaning database and blob storage (dev seeder)...");
         clearDatabase();
 
-        log.info("Seeding {} artists and {} artworks...", ARTISTS.length, ARTWORKS.length);
+        log.info("Seeding {} artists and {} artworks (downloading images from Picsum)...", ARTISTS.length, ARTWORKS.length);
         List<Account> accounts = seedAccounts();
         seedArtworks(accounts);
 
@@ -346,6 +353,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         tokenRepository.deleteAllInBatch();
         artworkRepository.deleteAllInBatch();
         accountRepository.deleteAllInBatch();
+        blobStorageService.deleteAll();
     }
 
     private List<Account> seedAccounts() {
@@ -365,30 +373,91 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (accounts.isEmpty()) return;
 
         Random random = new Random(42);
-        List<Artwork> artworks = new ArrayList<>();
         Instant now = Instant.now();
 
         for (int i = 0; i < ARTWORKS.length; i++) {
-            String[] data    = ARTWORKS[i];
-            Account creator  = accounts.get(i % accounts.size());
+            String[] data   = ARTWORKS[i];
+            Account creator = accounts.get(i % accounts.size());
 
-            // Spread creation dates over the past 12 months
             Instant createdAt = now.minus(random.nextInt(365), ChronoUnit.DAYS)
                                    .minus(random.nextInt(24), ChronoUnit.HOURS);
 
-            Artwork artwork = Artwork.builder()
+            Artwork artwork = artworkRepository.save(Artwork.builder()
                 .title(data[0])
                 .description(data[1])
                 .price(new BigDecimal(data[3]))
                 .creator(creator)
                 .views(random.nextInt(1200))
                 .createdAt(createdAt)
-                .build();
+                .build());
 
-            artworks.add(artwork);
+            // Main image – Picsum seed matches the imageUrlSeed column (101..151)
+            String mainSeed = data[2];
+            downloadAndSaveImage(artwork, mainSeed, 0, true);
+
+            // Every 3rd artwork gets a second image to demonstrate the multi-image feature
+            if (i % 3 == 0) {
+                downloadAndSaveImage(artwork, String.valueOf(Integer.parseInt(mainSeed) + 500), 1, false);
+            }
+
+            log.info("Seeded artwork {}/{}: {}", i + 1, ARTWORKS.length, artwork.getTitle());
         }
+    }
 
-        artworkRepository.saveAll(artworks);
+    /**
+     * Downloads an image from Picsum Photos and stores it (+ thumbnail) in blob storage,
+     * then persists an ArtworkImage record. Errors are logged and silently skipped so a
+     * single failed download never aborts the whole seed run.
+     */
+    private void downloadAndSaveImage(Artwork artwork, String picsumSeed, int sortOrder, boolean isMain) {
+        try {
+            byte[] imageBytes = downloadBytes("https://picsum.photos/seed/" + picsumSeed + "/800/600");
+            String contentType = "image/jpeg";
+
+            ArtworkImageProcessingService.ImageMetadata meta =
+                artworkImageProcessingService.extractMetadata(imageBytes);
+
+            String blobName  = "artworks/" + artwork.getId() + "/seed-" + picsumSeed + ".jpg";
+            String thumbName = "artworks/" + artwork.getId() + "/thumbnails/seed-" + picsumSeed + ".jpg";
+
+            blobStorageService.upload(blobName, imageBytes, contentType);
+
+            byte[] thumb = artworkImageProcessingService.createThumbnail(imageBytes, 300, contentType);
+            blobStorageService.upload(thumbName, thumb, contentType);
+
+            artworkImageRepository.save(ArtworkImage.builder()
+                .artwork(artwork)
+                .blobName(blobName)
+                .thumbnailBlobName(thumbName)
+                .originalFileName("seed-" + picsumSeed + ".jpg")
+                .mimeType(contentType)
+                .fileSizeBytes(imageBytes.length)
+                .width(meta.getWidth())
+                .height(meta.getHeight())
+                .sortOrder(sortOrder)
+                .isMainImage(isMain)
+                .createdAt(Instant.now())
+                .build());
+
+        } catch (Exception ex) {
+            log.warn("Skipping image for artwork {} (picsum seed {}): {}",
+                artwork.getId(), picsumSeed, ex.getMessage());
+        }
+    }
+
+    private byte[] downloadBytes(String url) throws Exception {
+        HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
+        conn.setConnectTimeout(10_000);
+        conn.setReadTimeout(30_000);
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+        conn.setInstanceFollowRedirects(true);
+        try (InputStream in = conn.getInputStream();
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            in.transferTo(out);
+            return out.toByteArray();
+        } finally {
+            conn.disconnect();
+        }
     }
 }
 

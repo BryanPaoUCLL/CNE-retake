@@ -57,4 +57,14 @@ public class BlobStorageService {
         }
         return containerClient.getBlobClient(blobName).getBlobUrl();
     }
+
+    public void deleteAll() {
+        try {
+            containerClient.listBlobs()
+                .forEach(item -> deleteIfExists(item.getName()));
+            log.info("Cleared all blobs from container");
+        } catch (Exception ex) {
+            log.warn("Failed to clear all blobs from container: {}", ex.getMessage());
+        }
+    }
 }
