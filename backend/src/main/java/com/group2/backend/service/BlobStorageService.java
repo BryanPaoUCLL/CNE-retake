@@ -3,6 +3,7 @@ package com.group2.backend.service;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.blob.models.PublicAccessType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,12 @@ public class BlobStorageService {
             .buildClient();
 
         this.containerClient.createIfNotExists();
+        // Allow anonymous read access to individual blobs so browsers can load image URLs directly
+        try {
+            this.containerClient.setAccessPolicy(PublicAccessType.BLOB, null);
+        } catch (Exception ex) {
+            log.warn("Could not set container access policy to public: {}", ex.getMessage());
+        }
     }
 
     public void upload(String blobName, byte[] content, String contentType) {

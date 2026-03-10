@@ -3,6 +3,7 @@ package com.group2.backend.seed;
 import com.group2.backend.model.Account;
 import com.group2.backend.model.Artwork;
 import com.group2.backend.repository.AccountRepository;
+import com.group2.backend.repository.ArtworkImageRepository;
 import com.group2.backend.repository.ArtworkLikeRepository;
 import com.group2.backend.repository.ArtworkRepository;
 import com.group2.backend.repository.PurchaseRepository;
@@ -30,6 +31,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private final AccountRepository accountRepository;
     private final ArtworkRepository artworkRepository;
+    private final ArtworkImageRepository artworkImageRepository;
     private final PurchaseRepository purchaseRepository;
     private final ArtworkLikeRepository artworkLikeRepository;
     private final TokenRepository tokenRepository;
@@ -340,6 +342,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private void clearDatabase() {
         artworkLikeRepository.deleteAllInBatch();
         purchaseRepository.deleteAllInBatch();
+        artworkImageRepository.deleteAllInBatch();
         tokenRepository.deleteAllInBatch();
         artworkRepository.deleteAllInBatch();
         accountRepository.deleteAllInBatch();
