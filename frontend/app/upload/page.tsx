@@ -19,6 +19,7 @@ export default function UploadPage() {
 	const [price, setPrice] = useState("");
 	const [files, setFiles] = useState<File[]>([]);
 	const [uploading, setUploading] = useState(false);
+	const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	// Redirect if not logged in
@@ -59,6 +60,7 @@ export default function UploadPage() {
 
 		try {
 			setUploading(true);
+			setUploadProgress("Creating artwork...");
 			const createResponse = await ArtworkService.create({
 				title: title.trim(),
 				description: description.trim() || undefined,
@@ -70,10 +72,15 @@ export default function UploadPage() {
 			}
 
 			const artwork = await createResponse.json();
-			const uploadResponse = await ArtworkService.uploadImages(artwork.id, files);
-			if (!uploadResponse.ok) {
-				const errorData = await uploadResponse.json();
-				throw new Error(errorData.message || "Artwork created but image upload failed");
+
+			// Upload each image individually to avoid hitting request-size limits
+			for (let i = 0; i < files.length; i++) {
+				setUploadProgress(`Uploading image ${i + 1} of ${files.length}...`);
+				const uploadResponse = await ArtworkService.uploadImages(artwork.id, [files[i]]);
+				if (!uploadResponse.ok) {
+					const errorData = await uploadResponse.json().catch(() => ({}));
+					throw new Error(errorData.message || `Failed to upload image ${i + 1} (${files[i].name})`);
+				}
 			}
 
 			router.push(`/artwork/${artwork.id}`);
@@ -81,6 +88,7 @@ export default function UploadPage() {
 			setError(err.message || "Failed to upload artwork");
 		} finally {
 			setUploading(false);
+			setUploadProgress(null);
 		}
 	};
 
@@ -262,7 +270,7 @@ export default function UploadPage() {
 						{uploading ? (
 							<>
 								<div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-								Uploading...
+								{uploadProgress ?? "Uploading..."}
 							</>
 						) : (
 							<>
