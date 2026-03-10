@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Upload, Image as ImageIcon, DollarSign, FileText, X } from "lucide-react";
+import { ArrowLeft, Upload, Image as ImageIcon, DollarSign, FileText } from "lucide-react";
 import ArtworkService from "@/src/services/artwork.service";
 import { useAuth } from "@/src/context/AuthContext";
+
+const MAX_FILES = 10;
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 export default function UploadPage() {
 	const router = useRouter();
@@ -13,11 +16,10 @@ export default function UploadPage() {
 
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
-	const [imageUrl, setImageUrl] = useState("");
 	const [price, setPrice] = useState("");
+	const [files, setFiles] = useState<File[]>([]);
 	const [uploading, setUploading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [imageError, setImageError] = useState(false);
 
 	// Redirect if not logged in
 	if (!authLoading && !user) {
@@ -46,8 +48,8 @@ export default function UploadPage() {
 			setError("Title is required");
 			return;
 		}
-		if (!imageUrl.trim()) {
-			setError("Image URL is required");
+		if (files.length === 0) {
+			setError("Please select at least one image");
 			return;
 		}
 		if (!price || parseFloat(price) < 0) {
@@ -57,36 +59,55 @@ export default function UploadPage() {
 
 		try {
 			setUploading(true);
-			const response = await ArtworkService.create({
+			const createResponse = await ArtworkService.create({
 				title: title.trim(),
 				description: description.trim() || undefined,
-				imageUrl: imageUrl.trim(),
 				price: parseFloat(price),
 			});
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || "Failed to upload");
+			if (!createResponse.ok) {
+				const errorData = await createResponse.json();
+				throw new Error(errorData.message || "Failed to create artwork");
 			}
-			const artwork = await response.json();
+
+			const artwork = await createResponse.json();
+			const uploadResponse = await ArtworkService.uploadImages(artwork.id, files);
+			if (!uploadResponse.ok) {
+				const errorData = await uploadResponse.json();
+				throw new Error(errorData.message || "Artwork created but image upload failed");
+			}
+
 			router.push(`/artwork/${artwork.id}`);
 		} catch (err: any) {
-			console.error("Upload failed:", err);
 			setError(err.message || "Failed to upload artwork");
 		} finally {
 			setUploading(false);
 		}
 	};
 
-	const handleImageUrlChange = (url: string) => {
-		setImageUrl(url);
-		setImageError(false);
+	const handleFileSelection = (selected: FileList | null) => {
+		if (!selected) return;
+		const selectedFiles = Array.from(selected);
+		const oversized = selectedFiles.find((file) => file.size > MAX_FILE_SIZE_BYTES);
+		if (oversized) {
+			setError(`File ${oversized.name} exceeds 5MB limit.`);
+			return;
+		}
+
+		const next = [...files, ...selectedFiles].slice(0, MAX_FILES);
+		setFiles(next);
+		setError(null);
 	};
 
-	const isValid = title.trim() && imageUrl.trim() && price && parseFloat(price) >= 0;
+	const removeFile = (name: string) => {
+		setFiles((prev) => prev.filter((file) => file.name !== name));
+	};
+
+	const previews = useMemo(() => files.map((file) => ({ file, url: URL.createObjectURL(file) })), [files]);
+	const isValid = title.trim() && price && parseFloat(price) >= 0 && files.length > 0;
 
 	return (
 		<div className="min-h-screen bg-white">
-			<div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 				{/* Back button */}
 				<Link
 					href="/"
@@ -106,62 +127,52 @@ export default function UploadPage() {
 					onSubmit={handleSubmit}
 					className="space-y-6"
 				>
-					{/* Image Preview */}
+					{/* Images */}
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">Preview</label>
-						<div className="aspect-[4/3] rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 overflow-hidden relative">
-							{imageUrl && !imageError ? (
-								<>
-									<img
-										src={imageUrl}
-										alt="Preview"
-										className="w-full h-full object-cover"
-										onError={() => setImageError(true)}
-									/>
-									<button
-										type="button"
-										onClick={() => setImageUrl("")}
-										className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-									>
-										<X size={16} />
-									</button>
-								</>
-							) : (
-								<div className="flex flex-col items-center justify-center h-full text-gray-400">
-									<ImageIcon
-										size={48}
-										className="mb-3"
-									/>
-									<p className="text-sm">Enter an image URL below</p>
-								</div>
-							)}
-						</div>
+						<label className="block text-sm font-medium text-gray-700 mb-2">Images *</label>
+						<label className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-10 cursor-pointer hover:border-gray-400 transition-colors">
+							<ImageIcon
+								size={36}
+								className="text-gray-400 mb-3"
+							/>
+							<p className="text-sm text-gray-600 mb-1">Select up to {MAX_FILES} images</p>
+							<p className="text-xs text-gray-400">Allowed: jpeg, jpg, png, webp</p>
+							<input
+								type="file"
+								accept="image/jpeg,image/png,image/webp,image/jpg"
+								multiple
+								onChange={(e) => handleFileSelection(e.target.files)}
+								className="hidden"
+							/>
+						</label>
 					</div>
 
-					{/* Image URL */}
-					<div>
-						<label
-							htmlFor="imageUrl"
-							className="block text-sm font-medium text-gray-700 mb-2"
-						>
-							Image URL *
-						</label>
-						<div className="relative">
-							<ImageIcon
-								size={18}
-								className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-							/>
-							<input
-								type="url"
-								id="imageUrl"
-								value={imageUrl}
-								onChange={(e) => handleImageUrlChange(e.target.value)}
-								placeholder="https://example.com/image.jpg"
-								className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all"
-							/>
+					{previews.length > 0 && (
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+							{previews.map(({ file, url }) => (
+								<div
+									key={file.name}
+									className="relative rounded-xl overflow-hidden border border-gray-200 bg-white"
+								>
+									<img
+										src={url}
+										alt={file.name}
+										className="w-full h-32 object-cover"
+									/>
+									<div className="p-2">
+										<p className="text-xs text-gray-600 truncate">{file.name}</p>
+										<button
+											type="button"
+											onClick={() => removeFile(file.name)}
+											className="mt-1 text-xs text-red-500 hover:text-red-600"
+										>
+											Remove
+										</button>
+									</div>
+								</div>
+							))}
 						</div>
-						{imageError && <p className="mt-2 text-sm text-red-500">Unable to load image from this URL</p>}
-					</div>
+					)}
 
 					{/* Title */}
 					<div>
@@ -232,7 +243,7 @@ export default function UploadPage() {
 								className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all"
 							/>
 						</div>
-						<p className="mt-1 text-sm text-gray-400">Set to 0 for free artwork</p>
+						<p className="mt-1 text-sm text-gray-400">Set to 0 for a free artwork</p>
 					</div>
 
 					{/* Error */}

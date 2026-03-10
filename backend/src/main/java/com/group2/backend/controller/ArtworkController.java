@@ -2,9 +2,12 @@ package com.group2.backend.controller;
 
 import com.group2.backend.dto.ArtworkCreateDto;
 import com.group2.backend.dto.ArtworkDto;
+import com.group2.backend.dto.ArtworkImageDto;
+import com.group2.backend.dto.ArtworkImageReorderRequestDto;
 import com.group2.backend.dto.ArtworkSummaryDto;
 import com.group2.backend.dto.ArtworkUpdateDto;
 import com.group2.backend.dto.LikeCountDto;
+import com.group2.backend.service.ArtworkImageService;
 import com.group2.backend.service.ArtworkLikeService;
 import com.group2.backend.service.ArtworkService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,6 +34,7 @@ public class ArtworkController {
 
     private final ArtworkService artworkService;
     private final ArtworkLikeService artworkLikeService;
+    private final ArtworkImageService artworkImageService;
 
     @GetMapping
     @Operation(summary = "List artworks", description = "Paginated artworks")
@@ -77,6 +82,68 @@ public class ArtworkController {
     })
     public ResponseEntity<ArtworkDto> update(@PathVariable Long id, @RequestBody ArtworkUpdateDto body) {
         return ResponseEntity.ok(artworkService.updateArtwork(id, body));
+    }
+
+    @GetMapping("/{id}/images")
+    @Operation(summary = "List artwork images", description = "List all images for an artwork in sort order")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public ResponseEntity<List<ArtworkImageDto>> listImages(@PathVariable Long id) {
+        return ResponseEntity.ok(artworkImageService.listImages(id));
+    }
+
+    @PostMapping(value = "/{id}/images", consumes = "multipart/form-data")
+    @Operation(summary = "Upload artwork images", description = "Upload one or more images for an artwork", security = @SecurityRequirement(name = "bearer-jwt"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Created"),
+        @ApiResponse(responseCode = "400", description = "Invalid request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "413", description = "Payload too large")
+    })
+    public ResponseEntity<List<ArtworkImageDto>> uploadImages(@PathVariable Long id, @RequestPart("files") List<MultipartFile> files) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(artworkImageService.uploadImages(id, files));
+    }
+
+    @PutMapping("/{id}/images/{imageId}/main")
+    @Operation(summary = "Set artwork main image", description = "Set the given image as the main image", security = @SecurityRequirement(name = "bearer-jwt"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public ResponseEntity<ArtworkImageDto> setMainImage(@PathVariable Long id, @PathVariable Long imageId) {
+        return ResponseEntity.ok(artworkImageService.setMainImage(id, imageId));
+    }
+
+    @PutMapping("/{id}/images/order")
+    @Operation(summary = "Reorder artwork images", description = "Persist image ordering using ordered image ids", security = @SecurityRequirement(name = "bearer-jwt"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public ResponseEntity<List<ArtworkImageDto>> reorderImages(@PathVariable Long id, @RequestBody ArtworkImageReorderRequestDto body) {
+        return ResponseEntity.ok(artworkImageService.reorderImages(id, body));
+    }
+
+    @DeleteMapping("/{id}/images/{imageId}")
+    @Operation(summary = "Delete artwork image", description = "Delete an image and its thumbnail blob", security = @SecurityRequirement(name = "bearer-jwt"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public ResponseEntity<Void> deleteImage(@PathVariable Long id, @PathVariable Long imageId) {
+        artworkImageService.deleteImage(id, imageId);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

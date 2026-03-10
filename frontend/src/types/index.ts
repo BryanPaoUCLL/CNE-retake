@@ -36,34 +36,56 @@ export interface ArtworkDto {
 	title: string;
 	description?: string;
 	imageUrl?: string;
+	thumbnailUrl?: string;
 	price: number;
 	views: number;
 	createdAt: string;
 	creator: AccountSummaryDto;
+	images: ArtworkImageDto[];
 }
 
 export interface ArtworkSummaryDto {
 	id: number;
 	title: string;
 	imageUrl?: string;
+	thumbnailUrl?: string;
 	price: number;
 	views: number;
 	createdAt: string;
 	creator: AccountSummaryDto;
 }
 
+export interface ArtworkImageDto {
+	id: number;
+	artworkId: number;
+	blobName: string;
+	originalFileName: string;
+	mimeType: string;
+	fileSizeBytes: number;
+	width: number;
+	height: number;
+	thumbnailBlobName: string;
+	sortOrder: number;
+	isMainImage: boolean;
+	createdAt: string;
+	url: string;
+	thumbnailUrl: string;
+}
+
 export interface ArtworkCreateDto {
 	title: string;
 	description?: string;
 	price: number;
-	imageUrl?: string;
 }
 
 export interface ArtworkUpdateDto {
 	title?: string;
 	description?: string;
 	price?: number;
-	imageUrl?: string;
+}
+
+export interface ArtworkImageReorderRequestDto {
+	orderedImageIds: number[];
 }
 
 // ==================== Like Types ====================

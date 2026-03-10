@@ -2,6 +2,7 @@ package com.group2.backend.model;
 
 import com.group2.backend.dto.AccountSummaryDto;
 import com.group2.backend.dto.ArtworkDto;
+import com.group2.backend.dto.ArtworkImageDto;
 import com.group2.backend.dto.ArtworkSummaryDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -34,9 +35,6 @@ public class Artwork {
     @NotNull
     private BigDecimal price;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     @Column
     @Builder.Default
     private int views = 0;
@@ -63,26 +61,56 @@ public class Artwork {
     @EqualsAndHashCode.Exclude
     private List<ArtworkLike> likes;
 
+    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
+    @Singular
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<ArtworkImage> images;
+
     public ArtworkDto toDto() {
         AccountSummaryDto creatorDto = creator != null ? creator.toSummaryDto() : null;
+        List<ArtworkImageDto> imageDtos = images == null
+            ? List.of()
+            : images.stream()
+                .sorted((a, b) -> Integer.compare(a.getSortOrder(), b.getSortOrder()))
+                .map(image -> image.toDto(null, null))
+                .toList();
+
+        ArtworkImageDto mainImage = imageDtos.stream()
+            .filter(ArtworkImageDto::isMainImage)
+            .findFirst()
+            .orElseGet(() -> imageDtos.isEmpty() ? null : imageDtos.get(0));
+
         return ArtworkDto.builder()
             .id(this.id)
             .title(this.title)
             .description(this.description)
-            .imageUrl(this.imageUrl)
+            .imageUrl(mainImage != null ? mainImage.getUrl() : null)
+            .thumbnailUrl(mainImage != null ? mainImage.getThumbnailUrl() : null)
             .price(this.price)
             .views(this.views)
             .createdAt(this.createdAt)
             .creator(creatorDto)
+            .images(imageDtos)
             .build();
     }
 
     public ArtworkSummaryDto toSummaryDto() {
         AccountSummaryDto creatorDto = creator != null ? creator.toSummaryDto() : null;
+        ArtworkImage mainImage = images == null
+            ? null
+            : images.stream()
+                .sorted((a, b) -> Integer.compare(a.getSortOrder(), b.getSortOrder()))
+                .filter(ArtworkImage::isMainImage)
+                .findFirst()
+                .orElseGet(() -> images.isEmpty() ? null : images.get(0));
+
         return ArtworkSummaryDto.builder()
             .id(this.id)
             .title(this.title)
-            .imageUrl(this.imageUrl)
+            .imageUrl(mainImage != null ? mainImage.getBlobName() : null)
+            .thumbnailUrl(mainImage != null ? mainImage.getThumbnailBlobName() : null)
             .price(this.price)
             .views(this.views)
             .createdAt(this.createdAt)

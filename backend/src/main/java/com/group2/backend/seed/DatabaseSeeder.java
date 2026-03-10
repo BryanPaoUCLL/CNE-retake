@@ -376,7 +376,6 @@ public class DatabaseSeeder implements CommandLineRunner {
             Artwork artwork = Artwork.builder()
                 .title(data[0])
                 .description(data[1])
-                .imageUrl("https://picsum.photos/seed/" + data[2] + "/900/700")
                 .price(new BigDecimal(data[3]))
                 .creator(creator)
                 .views(random.nextInt(1200))

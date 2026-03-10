@@ -139,7 +139,11 @@ export default function PurchasesPage() {
 								{/* Thumbnail */}
 								<div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 shrink-0">
 									<img
-										src={purchase.artwork.imageUrl}
+										src={
+											purchase.artwork.thumbnailUrl ||
+											purchase.artwork.imageUrl ||
+											"/logo/brandmark_squared.png"
+										}
 										alt={purchase.artwork.title}
 										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
 									/>

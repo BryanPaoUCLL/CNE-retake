@@ -16,6 +16,7 @@ public class ArtworkSummaryDto {
     private Long id;
     private String title;
     private String imageUrl;
+    private String thumbnailUrl;
     private BigDecimal price;
     private int views;
     private Instant createdAt;

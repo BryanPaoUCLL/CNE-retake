@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,8 +18,10 @@ public class ArtworkDto {
     private String title;
     private String description;
     private String imageUrl;
+    private String thumbnailUrl;
     private BigDecimal price;
     private int views;
     private Instant createdAt;
     private AccountSummaryDto creator;
+    private List<ArtworkImageDto> images;
 }

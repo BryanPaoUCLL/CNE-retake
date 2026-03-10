@@ -1,4 +1,4 @@
-import { ArtworkCreateDto, ArtworkUpdateDto } from "../types";
+import { ArtworkCreateDto, ArtworkImageReorderRequestDto, ArtworkUpdateDto } from "../types";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -62,6 +62,48 @@ const remove = (id: number) => {
 	});
 };
 
+const listImages = (id: number) => {
+	return fetch(`${API_URL}/artworks/${id}/images`, {
+		method: "GET",
+		credentials: "include",
+		headers: { "Content-Type": "application/json" },
+	});
+};
+
+const uploadImages = (id: number, files: File[]) => {
+	const formData = new FormData();
+	files.forEach((file) => formData.append("files", file));
+
+	return fetch(`${API_URL}/artworks/${id}/images`, {
+		method: "POST",
+		credentials: "include",
+		body: formData,
+	});
+};
+
+const setMainImage = (id: number, imageId: number) => {
+	return fetch(`${API_URL}/artworks/${id}/images/${imageId}/main`, {
+		method: "PUT",
+		credentials: "include",
+	});
+};
+
+const reorderImages = (id: number, data: ArtworkImageReorderRequestDto) => {
+	return fetch(`${API_URL}/artworks/${id}/images/order`, {
+		method: "PUT",
+		credentials: "include",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(data),
+	});
+};
+
+const deleteImage = (id: number, imageId: number) => {
+	return fetch(`${API_URL}/artworks/${id}/images/${imageId}`, {
+		method: "DELETE",
+		credentials: "include",
+	});
+};
+
 const like = (id: number) => {
 	return fetch(`${API_URL}/artworks/${id}/like`, {
 		method: "POST",
@@ -92,6 +134,11 @@ const ArtworkService = {
 	create,
 	update,
 	remove,
+	listImages,
+	uploadImages,
+	setMainImage,
+	reorderImages,
+	deleteImage,
 	like,
 	unlike,
 	getLikeCount,

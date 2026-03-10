@@ -83,7 +83,7 @@ export default function TrendingPage() {
 							>
 								<div className="aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100">
 									<img
-										src={artwork.imageUrl}
+										src={artwork.thumbnailUrl || artwork.imageUrl || "/logo/brandmark_squared.png"}
 										alt={artwork.title}
 										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 									/>

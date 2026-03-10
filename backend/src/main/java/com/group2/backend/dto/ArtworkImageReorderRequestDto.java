@@ -5,14 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ArtworkCreateDto {
-    private String title;
-    private String description;
-    private BigDecimal price;
+public class ArtworkImageReorderRequestDto {
+    private List<Long> orderedImageIds;
 }

@@ -45,6 +45,7 @@ public class SecurityConfig {
                     "/artworks/search",
                     "/artworks/trending",
                     "/artworks/*",
+                    "/artworks/*/images",
                     "/artworks/*/likes",
                     "/accounts",
                     "/accounts/*",

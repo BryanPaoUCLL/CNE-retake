@@ -2,11 +2,14 @@ package com.group2.backend.service;
 
 import com.group2.backend.dto.ArtworkCreateDto;
 import com.group2.backend.dto.ArtworkDto;
+import com.group2.backend.dto.ArtworkImageDto;
 import com.group2.backend.dto.ArtworkSummaryDto;
 import com.group2.backend.dto.ArtworkUpdateDto;
 import com.group2.backend.exception.service.ServiceException;
 import com.group2.backend.model.Account;
 import com.group2.backend.model.Artwork;
+import com.group2.backend.model.ArtworkImage;
+import com.group2.backend.repository.ArtworkImageRepository;
 import com.group2.backend.repository.ArtworkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,11 +29,14 @@ import java.util.Optional;
 public class ArtworkService {
 
     private final ArtworkRepository artworkRepository;
+    private final ArtworkImageRepository artworkImageRepository;
     private final AuthService authService;
+    private final BlobStorageService blobStorageService;
+    private final ArtworkImageService artworkImageService;
 
     public Page<ArtworkSummaryDto> listArtworks(int page, int size, String sort) {
         Pageable pageable = buildPageable(page, size, sort);
-        return artworkRepository.findAll(pageable).map(Artwork::toSummaryDto);
+        return artworkRepository.findAll(pageable).map(this::toSummaryDto);
     }
 
     public ArtworkDto getArtwork(Long id) {
@@ -39,7 +45,7 @@ public class ArtworkService {
 
         artwork.setViews(artwork.getViews() + 1);
         Artwork saved = artworkRepository.save(artwork);
-        return saved.toDto();
+        return toDto(saved);
     }
 
     public ArtworkDto createArtwork(ArtworkCreateDto body) {
@@ -49,13 +55,12 @@ public class ArtworkService {
         Artwork toCreate = Artwork.builder()
             .title(body.getTitle().trim())
             .description(Optional.ofNullable(body.getDescription()).map(String::trim).orElse(null))
-            .imageUrl(Optional.ofNullable(body.getImageUrl()).map(String::trim).orElse(null))
             .price(body.getPrice())
             .creator(creator)
             .build();
 
         Artwork saved = artworkRepository.save(toCreate);
-        return saved.toDto();
+        return toDto(saved);
     }
 
     public ArtworkDto updateArtwork(Long id, ArtworkUpdateDto body) {
@@ -76,13 +81,9 @@ public class ArtworkService {
         if (body.getPrice() != null) {
             artwork.setPrice(body.getPrice());
         }
-        if (body.getImageUrl() != null) {
-            String trimmed = body.getImageUrl().trim();
-            artwork.setImageUrl(trimmed.isEmpty() ? null : trimmed);
-        }
 
         Artwork saved = artworkRepository.save(artwork);
-        return saved.toDto();
+        return toDto(saved);
     }
 
     public void deleteArtwork(Long id) {
@@ -92,6 +93,7 @@ public class ArtworkService {
         if (artwork.getCreator() == null || !caller.getId().equals(artwork.getCreator().getId())) {
             throw new ServiceException("Forbidden", HttpStatus.FORBIDDEN);
         }
+        artworkImageService.deleteAllImagesForArtwork(id);
         artworkRepository.delete(artwork);
     }
 
@@ -101,22 +103,75 @@ public class ArtworkService {
         }
         return artworkRepository.findByTitleContainingIgnoreCase(query.trim())
             .stream()
-            .map(Artwork::toSummaryDto)
+            .map(this::toSummaryDto)
             .toList();
     }
 
     public List<ArtworkSummaryDto> trending() {
         return artworkRepository.findTop10ByOrderByViewsDesc()
             .stream()
-            .map(Artwork::toSummaryDto)
+            .map(this::toSummaryDto)
             .toList();
     }
 
     public List<ArtworkSummaryDto> listByAccount(Integer accountId) {
         return artworkRepository.findByCreatorId(accountId)
             .stream()
-            .map(Artwork::toSummaryDto)
+            .map(this::toSummaryDto)
             .toList();
+    }
+
+    private ArtworkDto toDto(Artwork artwork) {
+        List<ArtworkImageDto> images = artworkImageRepository.findByArtworkIdOrderBySortOrderAsc(artwork.getId())
+            .stream()
+            .map(this::toImageDto)
+            .toList();
+
+        ArtworkImageDto mainImage = images.stream()
+            .filter(ArtworkImageDto::isMainImage)
+            .findFirst()
+            .orElseGet(() -> images.isEmpty() ? null : images.get(0));
+
+        return ArtworkDto.builder()
+            .id(artwork.getId())
+            .title(artwork.getTitle())
+            .description(artwork.getDescription())
+            .price(artwork.getPrice())
+            .views(artwork.getViews())
+            .createdAt(artwork.getCreatedAt())
+            .creator(artwork.getCreator() != null ? artwork.getCreator().toSummaryDto() : null)
+            .imageUrl(mainImage != null ? mainImage.getUrl() : null)
+            .thumbnailUrl(mainImage != null ? mainImage.getThumbnailUrl() : null)
+            .images(images)
+            .build();
+    }
+
+    private ArtworkSummaryDto toSummaryDto(Artwork artwork) {
+        ArtworkImageDto mainImage = artworkImageRepository.findByArtworkIdAndIsMainImageTrue(artwork.getId())
+            .map(this::toImageDto)
+            .orElseGet(() -> artworkImageRepository.findByArtworkIdOrderBySortOrderAsc(artwork.getId())
+                .stream()
+                .findFirst()
+                .map(this::toImageDto)
+                .orElse(null));
+
+        return ArtworkSummaryDto.builder()
+            .id(artwork.getId())
+            .title(artwork.getTitle())
+            .price(artwork.getPrice())
+            .views(artwork.getViews())
+            .createdAt(artwork.getCreatedAt())
+            .creator(artwork.getCreator() != null ? artwork.getCreator().toSummaryDto() : null)
+            .imageUrl(mainImage != null ? mainImage.getUrl() : null)
+            .thumbnailUrl(mainImage != null ? mainImage.getThumbnailUrl() : null)
+            .build();
+    }
+
+    private ArtworkImageDto toImageDto(ArtworkImage image) {
+        return image.toDto(
+            blobStorageService.toBlobUrl(image.getBlobName()),
+            blobStorageService.toBlobUrl(image.getThumbnailBlobName())
+        );
     }
 
     private Pageable buildPageable(int page, int size, String sort) {

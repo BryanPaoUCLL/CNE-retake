@@ -13,6 +13,7 @@ interface ArtworkCardProps {
 export default function ArtworkCard({ artwork, onLike }: ArtworkCardProps) {
 	const [isHovered, setIsHovered] = useState(false);
 	const [imageLoaded, setImageLoaded] = useState(false);
+	const imageSrc = artwork.thumbnailUrl || artwork.imageUrl || "/logo/brandmark_squared.png";
 
 	const formatPrice = (price: number) => {
 		return new Intl.NumberFormat("en-US", {
@@ -36,12 +37,13 @@ export default function ArtworkCard({ artwork, onLike }: ArtworkCardProps) {
 
 					{/* Image */}
 					<img
-						src={artwork.imageUrl || "/placeholder.jpg"}
+						src={imageSrc}
 						alt={artwork.title}
 						className={`w-full h-full object-cover transition-transform duration-500 ${
 							isHovered ? "scale-105" : "scale-100"
 						} ${imageLoaded ? "opacity-100" : "opacity-0"}`}
 						onLoad={() => setImageLoaded(true)}
+						onError={() => setImageLoaded(true)}
 					/>
 
 					{/* Hover overlay */}
@@ -63,6 +65,7 @@ export default function ArtworkCard({ artwork, onLike }: ArtworkCardProps) {
 
 					{/* Like button */}
 					<button
+						title="Like artwork"
 						onClick={(e) => {
 							e.preventDefault();
 							e.stopPropagation();
