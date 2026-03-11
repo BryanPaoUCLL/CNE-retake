@@ -37,6 +37,10 @@ public class PurchaseService {
             throw new ServiceException("Cannot purchase your own artwork", HttpStatus.BAD_REQUEST);
         }
 
+        if (artwork.isSold()) {
+            throw new ServiceException("This artwork has already been sold", HttpStatus.CONFLICT);
+        }
+
         Purchase purchase = Purchase.builder()
             .artwork(artwork)
             .buyer(buyer)
@@ -44,6 +48,8 @@ public class PurchaseService {
             .build();
 
         Purchase saved = purchaseRepository.save(purchase);
+        artwork.setSold(true);
+        artworkRepository.save(artwork);
         return toDto(saved);
     }
 

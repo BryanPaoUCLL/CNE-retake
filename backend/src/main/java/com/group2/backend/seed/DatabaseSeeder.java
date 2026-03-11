@@ -253,6 +253,10 @@ public class DatabaseSeeder implements CommandLineRunner {
                     continue;
                 }
 
+                if (artwork.isSold()) {
+                    continue;
+                }
+
                 String key = account.getId() + ":" + artwork.getId();
                 if (!purchaseKeys.add(key)) {
                     continue;
@@ -264,6 +268,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .purchasePrice(artwork.getPrice())
                     .purchaseDate(artwork.getCreatedAt().plus(5L + purchases, ChronoUnit.DAYS))
                     .build());
+                artwork.setSold(true);
+                artworkRepository.save(artwork);
                 purchases++;
             }
 

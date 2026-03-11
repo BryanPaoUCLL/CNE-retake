@@ -22,6 +22,7 @@ public class ArtworkDto {
     private BigDecimal price;
     private Integer year;
     private int views;
+    private boolean sold;
     private Instant createdAt;
     private AccountSummaryDto creator;
     private List<ArtworkImageDto> images;

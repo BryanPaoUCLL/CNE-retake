@@ -44,6 +44,10 @@ public class Artwork {
     @Builder.Default
     private int views = 0;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean sold = false;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
@@ -105,6 +109,7 @@ public class Artwork {
             .price(this.price)
             .year(this.year)
             .views(this.views)
+            .sold(this.sold)
             .createdAt(this.createdAt)
             .creator(creatorDto)
             .images(imageDtos)
@@ -130,6 +135,7 @@ public class Artwork {
             .price(this.price)
             .year(this.year)
             .views(this.views)
+            .sold(this.sold)
             .createdAt(this.createdAt)
             .creator(creatorDto)
             .tags(this.tags != null ? this.tags.stream().map(Tag::getName).collect(Collectors.toList()) : List.of())
