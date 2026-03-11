@@ -1,60 +1,63 @@
 # Dev Seeding
 
-This backend has a dev seeder that loads local metadata and images, then creates demo users, artworks, likes, and purchases.
+This backend now uses centralized JSON seed files and local image assets.
 
-## What Is Used
+## Seed Sources
 
 - Seeder code: `src/main/java/com/group2/backend/seed/DatabaseSeeder.java`
 - Seeder config: `src/main/resources/seed/dev-seed.json`
-- Optional metadata downloader: `src/main/java/com/group2/backend/seed/seeder.py`
-- Local artwork folders: `downloaded_artworks/`
+- Central artwork data: `src/main/resources/seed/artworks.json`
+- Central account data: `src/main/resources/seed/accounts.json`
+- Central tag catalog: `src/main/resources/seed/tags.json`
+- Local image assets: `seed_assets/artworks/`
 
-## Local Artwork Structure
+## Data Model
 
-The seeder expects each artwork folder under `downloaded_artworks/` to contain:
+`artworks.json` contains for every artwork:
 
-- `metadata.json`
-- One or more image files (`.jpg`, `.jpeg`, `.png`, `.webp`)
+- stable artwork id (`aw-xxx`)
+- MET object id
+- title, artist, objectDate, year
+- source URL
+- image paths
+- preassigned creator username
+- views and price
+- full tag list
 
-Minimal `metadata.json` example:
+`accounts.json` contains for every account:
 
-```json
-{
-	"title": "Artwork title",
-	"description": "Optional description",
-	"artist": "Artist name",
-	"year": 1889,
-	"tags": ["impressionism", "oil", "landscape"]
-}
+- account identity fields (`username`, `email`, `password`, `roles`)
+- `createdArtworkIds`
+- `purchasedArtworkIds`
+- `likedArtworkIds`
+
+`tags.json` is the canonical list of all allowed tags. Seeder validation fails if any artwork references a missing tag.
+
+## Asset Folder Rules
+
+- Artwork folders live under `seed_assets/artworks/`.
+- Folders contain only image files.
+- Per-folder `metadata.json` files are no longer used.
+
+## Rebuild Central Seed Files
+
+Use the generator script:
+
+```powershell
+".venv/Scripts/python.exe" scripts/build_seed_data.py
 ```
 
-## Account Seeding Rules
+This script:
 
-`dev-seed.json` defines exactly 10 demo accounts with a mix of:
-
-- creators
-- buyers
-- creator_buyers
-
-It also controls ranges for:
-
-- number of artworks
-- random likes
-- random purchases
-- generated views
+- moves `downloaded_artworks/` to `seed_assets/artworks/` when needed
+- consolidates data into `artworks.json`, `accounts.json`, and `tags.json`
+- removes legacy per-folder metadata files
+- validates tag references
 
 ## Run Seeder
 
 The seeder runs automatically when the `dev` profile is active.
 
-Example:
-
 ```powershell
 $env:SPRING_PROFILES_ACTIVE='dev'; .\mvnw.cmd spring-boot:run
 ```
-
-## Notes
-
-- `downloaded_artworks/` is intentionally gitignored for local use.
-- Commit shared defaults in `dev-seed.json`.
-- Keep personal overrides in `*.local.json` files (also gitignored).
