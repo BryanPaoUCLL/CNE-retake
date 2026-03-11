@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { AuthProvider } from "../context/AuthContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -10,37 +11,77 @@ import SearchModal from "./SearchModal";
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	const [authModalOpen, setAuthModalOpen] = useState(false);
 	const [searchModalOpen, setSearchModalOpen] = useState(false);
+	const router = useRouter();
 
-	// Global keyboard shortcut for search
+	const openAuthModal = useCallback(() => setAuthModalOpen(true), []);
+	const closeAuthModal = useCallback(() => setAuthModalOpen(false), []);
+	const openSearch = useCallback(() => setSearchModalOpen(true), []);
+	const closeSearch = useCallback(() => setSearchModalOpen(false), []);
+
+	// Global keyboard shortcuts
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
+			const target = e.target as HTMLElement;
+			const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
+
+			// Cmd/Ctrl + K → open search
 			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
 				e.preventDefault();
-				setSearchModalOpen(true);
+				setSearchModalOpen((prev) => !prev);
+				return;
+			}
+
+			// Escape → close modals
+			if (e.key === "Escape") {
+				if (searchModalOpen) {
+					closeSearch();
+					return;
+				}
+				if (authModalOpen) {
+					closeAuthModal();
+					return;
+				}
+			}
+
+			// Don't trigger letter shortcuts when typing in inputs
+			if (isInput) return;
+
+			// U → open upload
+			if (e.key === "u" || e.key === "U") {
+				e.preventDefault();
+				router.push("/upload");
+				return;
+			}
+
+			// H → go home
+			if (e.key === "h" || e.key === "H") {
+				e.preventDefault();
+				router.push("/");
+				return;
 			}
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, []);
+	}, [searchModalOpen, authModalOpen, closeSearch, closeAuthModal, router]);
 
 	return (
 		<AuthProvider>
 			<div className="min-h-screen flex flex-col">
 				<Navbar
-					onSearchClick={() => setSearchModalOpen(true)}
-					onLoginClick={() => setAuthModalOpen(true)}
+					onSearchClick={openSearch}
+					onLoginClick={openAuthModal}
 				/>
-				<main className="flex-1 pt-16">{children}</main>
+				<main className="flex-1 pt-20">{children}</main>
 				<Footer />
 			</div>
 
 			<AuthModal
 				isOpen={authModalOpen}
-				onClose={() => setAuthModalOpen(false)}
+				onClose={closeAuthModal}
 			/>
 			<SearchModal
 				isOpen={searchModalOpen}
-				onClose={() => setSearchModalOpen(false)}
+				onClose={closeSearch}
 			/>
 		</AuthProvider>
 	);

@@ -17,29 +17,35 @@ export default function Navbar({ onSearchClick, onLoginClick }: NavbarProps) {
 	const [scrolled, setScrolled] = useState(false);
 
 	useEffect(() => {
-		const handleScroll = () => {
-			setScrolled(window.scrollY > 20);
-		};
+		const handleScroll = () => setScrolled(window.scrollY > 10);
 		window.addEventListener("scroll", handleScroll);
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, []);
 
+	const initials =
+		user?.username
+			?.split(" ")
+			.map((n: string) => n[0])
+			.join("")
+			.toUpperCase()
+			.slice(0, 2) || "?";
+
 	return (
 		<nav
-			className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+			className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
 				scrolled
-					? "bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow-sm shadow-zinc-200/50 dark:shadow-zinc-900/50"
+					? "bg-stone-50/80 dark:bg-stone-950/80 backdrop-blur-2xl border-b border-stone-200/60 dark:border-stone-800/60"
 					: "bg-transparent"
 			}`}
 		>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div className="max-w-[1400px] mx-auto px-6 lg:px-10">
 				<div className="flex items-center justify-between h-20">
 					{/* Logo */}
 					<Link
 						href="/"
 						className="flex items-center gap-3 group"
 					>
-						<div className="relative w-10 h-10 transition-transform duration-300 group-hover:scale-105">
+						<div className="relative w-9 h-9 transition-transform duration-500 group-hover:scale-105">
 							<Image
 								src="/logo/brandmark.png"
 								alt="Galerique"
@@ -48,98 +54,105 @@ export default function Navbar({ onSearchClick, onLoginClick }: NavbarProps) {
 								priority
 							/>
 						</div>
-						<span className="font-[var(--font-bricolage)] font-extrabold text-xl tracking-tight text-zinc-900 dark:text-white hidden sm:block">
+						<span className="font-[var(--font-bricolage)] font-bold text-lg tracking-tight text-stone-900 dark:text-stone-100 hidden sm:block">
 							Galerique
 						</span>
 					</Link>
 
 					{/* Center Nav - Desktop */}
-					<div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-						<Link
-							href="/"
-							className="px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 rounded-full"
-						>
-							Explore
-						</Link>
-						<Link
-							href="/trending"
-							className="px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 rounded-full"
-						>
-							Trending
-						</Link>
-						<Link
-							href="/about"
-							className="px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 rounded-full"
-						>
-							About
-						</Link>
+					<div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+						{[
+							{ href: "/", label: "Gallery" },
+							{ href: "/trending", label: "Trending" },
+							{ href: "/about", label: "About" },
+						].map(({ href, label }) => (
+							<Link
+								key={href}
+								href={href}
+								className="text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-[13px] tracking-wide font-medium transition-colors duration-300"
+							>
+								{label}
+							</Link>
+						))}
 					</div>
 
-					{/* Right side actions */}
-					<div className="flex items-center gap-3">
-						{/* Search button */}
+					{/* Right actions */}
+					<div className="flex items-center gap-2">
+						{/* Search */}
 						<button
 							onClick={onSearchClick}
-							className="p-2.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 rounded-full transition-all duration-300"
-							title="Search"
+							className="p-2.5 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors duration-300"
+							title="Search (⌘K)"
 						>
-							<Search size={20} />
+							<Search
+								size={18}
+								strokeWidth={1.5}
+							/>
 						</button>
 
 						{user ? (
 							<>
 								<Link
 									href="/upload"
-									className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-900/20 dark:hover:shadow-white/20"
+									className="hidden sm:flex items-center gap-2 px-5 py-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 text-[13px] font-medium transition-colors duration-300"
 								>
-									<Plus size={16} />
+									<Plus
+										size={15}
+										strokeWidth={1.5}
+									/>
 									Upload
 								</Link>
 								<Link
 									href="/purchases"
-									className="p-2.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 rounded-full transition-all duration-300"
-									title="My Collection"
+									className="p-2.5 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors duration-300"
+									title="Collection"
 								>
-									<ShoppingBag size={20} />
+									<ShoppingBag
+										size={18}
+										strokeWidth={1.5}
+									/>
 								</Link>
 								<Link
 									href={`/profile/${user.id}`}
-									className="p-2.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 rounded-full transition-all duration-300"
+									className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center text-[11px] font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-300 dark:hover:bg-stone-700 transition-colors duration-300"
 									title="Profile"
 								>
-									<User size={20} />
+									{initials}
 								</Link>
 								<button
 									onClick={logout}
-									className="p-2.5 text-zinc-600 dark:text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all duration-300"
+									className="p-2.5 text-stone-400 hover:text-red-500 transition-colors duration-300"
 									title="Sign out"
 								>
-									<LogOut size={20} />
+									<LogOut
+										size={16}
+										strokeWidth={1.5}
+									/>
 								</button>
 							</>
 						) : (
 							<>
 								<button
 									onClick={onLoginClick}
-									className="hidden sm:block px-5 py-2.5 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white text-sm font-medium transition-all duration-300"
+									className="hidden sm:block text-[13px] font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors duration-300 px-4 py-2"
 								>
 									Sign in
 								</button>
 								<button
 									onClick={onLoginClick}
-									className="hidden sm:flex items-center px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-900/20 dark:hover:shadow-white/20"
+									className="hidden sm:flex items-center px-5 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-full text-[13px] font-medium hover:bg-stone-800 dark:hover:bg-stone-200 transition-all duration-300"
 								>
-									Get Started
+									Join
 								</button>
 							</>
 						)}
 
-						{/* Mobile menu toggle */}
+						{/* Mobile toggle */}
 						<button
 							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-							className="lg:hidden p-2.5 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 rounded-full transition-all duration-300"
+							className="lg:hidden p-2.5 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors duration-300"
 						>
-							{mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+							{mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
 						</button>
 					</div>
 				</div>
@@ -151,68 +164,70 @@ export default function Navbar({ onSearchClick, onLoginClick }: NavbarProps) {
 					mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
 				}`}
 			>
-				<div className="bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-200/50 dark:border-zinc-800/50 px-4 py-6">
+				<div className="bg-stone-50/95 dark:bg-stone-950/95 backdrop-blur-2xl border-t border-stone-200/50 dark:border-stone-800/50 px-6 py-8">
 					<div className="flex flex-col gap-1">
-						<Link
-							href="/"
-							className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors"
-							onClick={() => setMobileMenuOpen(false)}
-						>
-							Explore
-						</Link>
-						<Link
-							href="/trending"
-							className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors"
-							onClick={() => setMobileMenuOpen(false)}
-						>
-							Trending
-						</Link>
-						<Link
-							href="/about"
-							className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors"
-							onClick={() => setMobileMenuOpen(false)}
-						>
-							About
-						</Link>
+						{[
+							{ href: "/", label: "Gallery" },
+							{ href: "/trending", label: "Trending" },
+							{ href: "/about", label: "About" },
+						].map(({ href, label }) => (
+							<Link
+								key={href}
+								href={href}
+								className="px-4 py-3 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 font-medium transition-colors"
+								onClick={() => setMobileMenuOpen(false)}
+							>
+								{label}
+							</Link>
+						))}
 						{user ? (
 							<>
-								<div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
+								<div className="h-px bg-stone-200 dark:bg-stone-800 my-3" />
 								<Link
 									href="/purchases"
-									className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors flex items-center gap-2"
+									className="px-4 py-3 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 font-medium transition-colors flex items-center gap-3"
 									onClick={() => setMobileMenuOpen(false)}
 								>
-									<ShoppingBag size={16} />
-									My Collection
+									<ShoppingBag
+										size={16}
+										strokeWidth={1.5}
+									/>
+									Collection
 								</Link>
 								<Link
 									href={`/profile/${user.id}`}
-									className="px-4 py-3 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium transition-colors flex items-center gap-2"
+									className="px-4 py-3 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 font-medium transition-colors flex items-center gap-3"
 									onClick={() => setMobileMenuOpen(false)}
 								>
-									<User size={16} />
+									<User
+										size={16}
+										strokeWidth={1.5}
+									/>
 									Profile
 								</Link>
 								<Link
 									href="/upload"
-									className="mt-2 px-4 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl text-center font-medium flex items-center justify-center gap-2"
+									className="mt-3 px-4 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-xl text-center font-medium flex items-center justify-center gap-2"
 									onClick={() => setMobileMenuOpen(false)}
 								>
-									<Plus size={16} />
+									<Plus
+										size={16}
+										strokeWidth={1.5}
+									/>
 									Upload Artwork
 								</Link>
 							</>
 						) : (
 							<>
-								<div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
+								<div className="h-px bg-stone-200 dark:bg-stone-800 my-3" />
 								<button
 									onClick={() => {
 										setMobileMenuOpen(false);
 										onLoginClick?.();
 									}}
-									className="mt-2 px-4 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl text-center font-medium"
+									className="mt-3 px-4 py-3 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-xl text-center font-medium"
 								>
-									Get Started
+									Sign in
 								</button>
 							</>
 						)}

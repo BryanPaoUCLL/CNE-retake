@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ShoppingBag, Package, Calendar, DollarSign } from "lucide-react";
+import { ArrowLeft, ShoppingBag } from "lucide-react";
 import { PurchaseDto } from "@/src/types";
 import PurchaseService from "@/src/services/purchase.service";
 import { useAuth } from "@/src/context/AuthContext";
@@ -36,18 +36,25 @@ export default function PurchasesPage() {
 		}
 	}, [user, authLoading]);
 
-	// Redirect if not logged in
 	if (!authLoading && !user) {
 		return (
-			<div className="min-h-screen bg-white flex items-center justify-center">
+			<div className="min-h-screen flex items-center justify-center">
 				<div className="text-center">
-					<h1 className="text-2xl font-semibold text-gray-900 mb-2">Sign in required</h1>
-					<p className="text-gray-500 mb-6">You need to be signed in to view your purchases.</p>
+					<h1 className="font-[var(--font-bricolage)] text-2xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
+						Sign in required
+					</h1>
+					<p className="text-stone-500 dark:text-stone-400 text-sm mb-6">
+						You need to be signed in to view your purchases.
+					</p>
 					<Link
 						href="/"
-						className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+						className="text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors duration-300"
 					>
-						<ArrowLeft size={18} />
+						<ArrowLeft
+							size={14}
+							strokeWidth={1.5}
+							className="inline mr-1"
+						/>
 						Back to gallery
 					</Link>
 				</div>
@@ -55,72 +62,59 @@ export default function PurchasesPage() {
 		);
 	}
 
+	const totalSpent = purchases.reduce((sum, p) => sum + (p.purchasePrice || 0), 0);
+
 	return (
-		<div className="min-h-screen bg-white">
-			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-				{/* Back button */}
+		<div className="min-h-screen">
+			<div className="max-w-3xl mx-auto px-6 lg:px-10 py-12">
 				<Link
 					href="/"
-					className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-8 transition-colors"
+					className="inline-flex items-center gap-2 text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mb-10 transition-colors duration-300"
 				>
-					<ArrowLeft size={18} />
-					<span>Back</span>
+					<ArrowLeft
+						size={16}
+						strokeWidth={1.5}
+					/>
+					Back
 				</Link>
 
 				{/* Header */}
-				<div className="mb-8">
-					<div className="flex items-center gap-3 mb-2">
-						<div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-							<ShoppingBag
-								size={20}
-								className="text-white"
-							/>
-						</div>
-						<h1 className="text-3xl font-semibold text-gray-900">My Purchases</h1>
-					</div>
-					<p className="text-gray-500">Artworks you've collected</p>
+				<div className="mb-10">
+					<p className="tracking-editorial text-stone-400 dark:text-stone-600 mb-3">Collection</p>
+					<h1 className="font-[var(--font-bricolage)] text-3xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100 leading-[1.1]">
+						My Purchases
+					</h1>
 				</div>
 
 				{/* Stats */}
 				{!loading && purchases.length > 0 && (
-					<div className="flex items-center gap-6 mb-8 pb-6 border-b border-gray-100">
-						<div className="flex items-center gap-2 text-sm text-gray-600">
-							<Package
-								size={16}
-								className="text-purple-500"
-							/>
-							<span>
-								<strong className="text-gray-900">{purchases.length}</strong> artworks owned
-							</span>
-						</div>
-						<div className="flex items-center gap-2 text-sm text-gray-600">
-							<DollarSign
-								size={16}
-								className="text-green-500"
-							/>
-							<span>
-								<strong className="text-gray-900">
-									${purchases.reduce((sum, p) => sum + (p.purchasePrice || 0), 0).toLocaleString()}
-								</strong>{" "}
-								total spent
-							</span>
-						</div>
+					<div className="flex items-center gap-6 mb-10 pb-6 border-b border-stone-200 dark:border-stone-800">
+						<p className="text-sm text-stone-500 dark:text-stone-400">
+							<strong className="text-stone-900 dark:text-stone-100">{purchases.length}</strong> artwork
+							{purchases.length !== 1 ? "s" : ""} owned
+						</p>
+						<p className="text-sm text-stone-500 dark:text-stone-400">
+							<strong className="text-stone-900 dark:text-stone-100">
+								&euro;{totalSpent.toLocaleString()}
+							</strong>{" "}
+							total
+						</p>
 					</div>
 				)}
 
-				{/* Loading state */}
+				{/* Loading */}
 				{loading && (
 					<div className="space-y-4">
 						{[...Array(4)].map((_, i) => (
 							<div
 								key={i}
-								className="flex gap-4 p-4 border border-gray-100 rounded-2xl"
+								className="flex gap-4 p-4 border border-stone-100 dark:border-stone-900 rounded-lg"
 							>
-								<div className="w-24 h-24 bg-gray-100 rounded-xl animate-pulse shrink-0" />
+								<div className="w-20 h-20 bg-stone-100 dark:bg-stone-900 rounded-md animate-pulse shrink-0" />
 								<div className="flex-1">
-									<div className="h-5 w-48 bg-gray-100 rounded animate-pulse mb-2" />
-									<div className="h-4 w-32 bg-gray-100 rounded animate-pulse mb-3" />
-									<div className="h-4 w-24 bg-gray-100 rounded animate-pulse" />
+									<div className="h-4 w-40 bg-stone-100 dark:bg-stone-900 rounded animate-pulse mb-2" />
+									<div className="h-3 w-28 bg-stone-100 dark:bg-stone-900 rounded animate-pulse mb-3" />
+									<div className="h-3 w-20 bg-stone-100 dark:bg-stone-900 rounded animate-pulse" />
 								</div>
 							</div>
 						))}
@@ -129,15 +123,14 @@ export default function PurchasesPage() {
 
 				{/* Purchases list */}
 				{!loading && purchases.length > 0 && (
-					<div className="space-y-4">
+					<div className="space-y-3">
 						{purchases.map((purchase) => (
 							<Link
 								key={purchase.id}
 								href={`/artwork/${purchase.artwork.id}`}
-								className="flex gap-4 p-4 border border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-gray-50/50 transition-all group"
+								className="flex gap-4 p-4 border border-stone-200 dark:border-stone-800 rounded-lg hover:border-stone-300 dark:hover:border-stone-700 hover:bg-stone-50/50 dark:hover:bg-stone-900/50 transition-all duration-300 group"
 							>
-								{/* Thumbnail */}
-								<div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+								<div className="w-20 h-20 rounded-md overflow-hidden bg-stone-100 dark:bg-stone-900 shrink-0">
 									<img
 										src={
 											purchase.artwork.thumbnailUrl ||
@@ -145,23 +138,23 @@ export default function PurchasesPage() {
 											"/logo/brandmark_squared.png"
 										}
 										alt={purchase.artwork.title}
-										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 									/>
 								</div>
 
-								{/* Info */}
-								<div className="flex-1 min-w-0">
-									<h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors truncate">
+								<div className="flex-1 min-w-0 py-0.5">
+									<h3 className="font-medium text-stone-900 dark:text-stone-100 text-sm truncate mb-1">
 										{purchase.artwork.title}
 									</h3>
-									<p className="text-sm text-gray-500 mt-1">by {purchase.artwork.creator.username}</p>
-									<div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
-										<span className="font-medium text-gray-900">
-											${purchase.purchasePrice?.toLocaleString() || "0"}
+									<p className="text-xs text-stone-500 dark:text-stone-400 mb-2">
+										by {purchase.artwork.creator.username}
+									</p>
+									<div className="flex items-center gap-3 text-xs text-stone-400 dark:text-stone-600">
+										<span className="font-medium text-stone-900 dark:text-stone-100">
+											&euro;{purchase.purchasePrice?.toLocaleString() || "0"}
 										</span>
 										{purchase.purchaseDate && (
-											<span className="flex items-center gap-1">
-												<Calendar size={14} />
+											<span>
 												{new Date(purchase.purchaseDate).toLocaleDateString("en-US", {
 													month: "short",
 													day: "numeric",
@@ -171,13 +164,6 @@ export default function PurchasesPage() {
 										)}
 									</div>
 								</div>
-
-								{/* Owned badge */}
-								<div className="shrink-0 self-center">
-									<span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-600">
-										Owned
-									</span>
-								</div>
 							</Link>
 						))}
 					</div>
@@ -185,17 +171,18 @@ export default function PurchasesPage() {
 
 				{/* Empty state */}
 				{!loading && purchases.length === 0 && (
-					<div className="text-center py-16">
-						<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+					<div className="text-center py-20">
+						<div className="w-14 h-14 mx-auto mb-4 rounded-full bg-stone-100 dark:bg-stone-900 flex items-center justify-center">
 							<ShoppingBag
-								size={24}
-								className="text-gray-400"
+								size={20}
+								strokeWidth={1.5}
+								className="text-stone-400 dark:text-stone-600"
 							/>
 						</div>
-						<p className="text-gray-500 mb-4">You haven't purchased any artworks yet</p>
+						<p className="text-stone-500 dark:text-stone-400 text-sm mb-4">No purchases yet</p>
 						<Link
 							href="/"
-							className="inline-flex items-center gap-2 px-6 py-2 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
+							className="inline-flex items-center gap-2 px-6 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-full text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-200 transition-colors duration-300"
 						>
 							Explore artworks
 						</Link>

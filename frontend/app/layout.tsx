@@ -16,8 +16,9 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-	title: { template: "%s | Galerique", default: "Galerique - Luxury Digital Art Gallery" },
-	description: "Discover, collect and trade extraordinary digital art from visionary artists around the world.",
+	title: { template: "%s | Galerique", default: "Galerique - Digital Art Gallery" },
+	description:
+		"A curated digital art gallery. Discover, collect and appreciate extraordinary art from visionary artists.",
 };
 
 export default function RootLayout({
@@ -30,7 +31,9 @@ export default function RootLayout({
 			lang="en"
 			suppressHydrationWarning
 		>
-			<body className={`${inter.variable} ${bricolage.variable} font-sans antialiased bg-white dark:bg-zinc-950`}>
+			<body
+				className={`${inter.variable} ${bricolage.variable} font-sans antialiased bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100`}
+			>
 				<SettingsProvider>
 					<ClientLayout>{children}</ClientLayout>
 				</SettingsProvider>

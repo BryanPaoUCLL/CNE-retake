@@ -3,6 +3,7 @@
 import React from "react";
 import { ArtworkSummaryDto } from "../types";
 import ArtworkCard from "./ArtworkCard";
+import { ImageIcon } from "lucide-react";
 
 interface ArtworkGridProps {
 	artworks: ArtworkSummaryDto[];
@@ -13,19 +14,22 @@ interface ArtworkGridProps {
 export default function ArtworkGrid({ artworks, onLike, loading }: ArtworkGridProps) {
 	if (loading) {
 		return (
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-				{[...Array(8)].map((_, i) => (
+			<div className="masonry-grid">
+				{[...Array(6)].map((_, i) => (
 					<div
 						key={i}
 						className="animate-pulse"
 					>
-						<div className="aspect-[4/3] rounded-2xl bg-zinc-200 dark:bg-zinc-800" />
-						<div className="mt-3 flex items-center justify-between">
+						<div
+							className="rounded-lg bg-stone-200 dark:bg-stone-800"
+							style={{ height: `${220 + (i % 3) * 80}px` }}
+						/>
+						<div className="mt-3 space-y-2">
+							<div className="h-4 w-3/4 rounded bg-stone-200 dark:bg-stone-800" />
 							<div className="flex items-center gap-2">
-								<div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700" />
-								<div className="w-20 h-4 rounded bg-zinc-200 dark:bg-zinc-700" />
+								<div className="w-5 h-5 rounded-full bg-stone-200 dark:bg-stone-800" />
+								<div className="w-16 h-3 rounded bg-stone-200 dark:bg-stone-800" />
 							</div>
-							<div className="w-16 h-4 rounded bg-zinc-200 dark:bg-zinc-700" />
 						</div>
 					</div>
 				))}
@@ -35,25 +39,30 @@ export default function ArtworkGrid({ artworks, onLike, loading }: ArtworkGridPr
 
 	if (!artworks.length) {
 		return (
-			<div className="flex flex-col items-center justify-center py-20 text-center">
-				<div className="w-16 h-16 mb-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-					<span className="text-2xl">🎨</span>
+			<div className="flex flex-col items-center justify-center py-24 text-center">
+				<div className="w-16 h-16 mb-6 rounded-full bg-stone-100 dark:bg-stone-900 flex items-center justify-center">
+					<ImageIcon
+						size={24}
+						className="text-stone-400 dark:text-stone-600"
+						strokeWidth={1.5}
+					/>
 				</div>
-				<h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">No artworks found</h3>
-				<p className="text-zinc-500 dark:text-zinc-400 max-w-md">
-					Be the first to share your creative work with the community.
+				<h3 className="text-lg font-medium text-stone-800 dark:text-stone-200 mb-2">No artworks yet</h3>
+				<p className="text-stone-500 dark:text-stone-500 max-w-sm text-sm leading-relaxed">
+					The gallery is waiting for its first masterpiece. Be the first to share your work.
 				</p>
 			</div>
 		);
 	}
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-			{artworks.map((artwork) => (
+		<div className="masonry-grid">
+			{artworks.map((artwork, i) => (
 				<ArtworkCard
 					key={artwork.id}
 					artwork={artwork}
 					onLike={onLike}
+					priority={i < 4}
 				/>
 			))}
 		</div>

@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function Footer() {
 	return (
-		<footer className="bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 mt-auto">
+		<footer className="bg-stone-50 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 mt-auto">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
 					{/* Brand */}
@@ -23,11 +23,11 @@ export default function Footer() {
 									className="object-contain"
 								/>
 							</div>
-							<span className="font-[var(--font-bricolage)] font-extrabold text-xl text-zinc-900 dark:text-white">
+							<span className="font-[var(--font-bricolage)] font-extrabold text-xl text-stone-900 dark:text-white">
 								Galerique
 							</span>
 						</Link>
-						<p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed">
+						<p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs leading-relaxed">
 							The luxury digital art gallery. Discover and collect extraordinary art from visionary
 							artists worldwide.
 						</p>
@@ -35,12 +35,12 @@ export default function Footer() {
 
 					{/* Explore */}
 					<div>
-						<h4 className="font-medium text-zinc-900 dark:text-white mb-4">Explore</h4>
+						<h4 className="font-medium text-stone-900 dark:text-white mb-4">Explore</h4>
 						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									Gallery
 								</Link>
@@ -48,7 +48,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/trending"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									Trending
 								</Link>
@@ -56,7 +56,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									About
 								</Link>
@@ -66,12 +66,12 @@ export default function Footer() {
 
 					{/* For Artists */}
 					<div>
-						<h4 className="font-medium text-zinc-900 dark:text-white mb-4">For Artists</h4>
+						<h4 className="font-medium text-stone-900 dark:text-white mb-4">For Artists</h4>
 						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/upload"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									Upload Art
 								</Link>
@@ -79,7 +79,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/about#artists"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									Artist Resources
 								</Link>
@@ -87,7 +87,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/about#guidelines"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									Guidelines
 								</Link>
@@ -97,12 +97,12 @@ export default function Footer() {
 
 					{/* Legal */}
 					<div>
-						<h4 className="font-medium text-zinc-900 dark:text-white mb-4">Legal</h4>
+						<h4 className="font-medium text-stone-900 dark:text-white mb-4">Legal</h4>
 						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/privacy"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									Privacy Policy
 								</Link>
@@ -110,7 +110,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/terms"
-									className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+									className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 								>
 									Terms of Service
 								</Link>
@@ -120,8 +120,8 @@ export default function Footer() {
 				</div>
 
 				{/* Bottom */}
-				<div className="mt-16 pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-					<p className="text-sm text-zinc-400 dark:text-zinc-500">
+				<div className="mt-16 pt-8 border-t border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+					<p className="text-sm text-stone-400 dark:text-stone-500">
 						© {new Date().getFullYear()} Galerique. All rights reserved.
 					</p>
 					<div className="flex items-center gap-5">
@@ -129,7 +129,7 @@ export default function Footer() {
 							href="https://twitter.com"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+							className="text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 							aria-label="Twitter"
 						>
 							<svg
@@ -144,7 +144,7 @@ export default function Footer() {
 							href="https://instagram.com"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+							className="text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 							aria-label="Instagram"
 						>
 							<svg
@@ -159,7 +159,7 @@ export default function Footer() {
 							href="https://github.com"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+							className="text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
 							aria-label="GitHub"
 						>
 							<svg

@@ -7,20 +7,7 @@ import { ArtworkDto, ArtworkImageDto, LikeCountDto } from "../../../src/types";
 import { useAuth } from "../../../src/context/AuthContext";
 import ArtworkService from "../../../src/services/artwork.service";
 import PurchaseService from "../../../src/services/purchase.service";
-import {
-	Heart,
-	Eye,
-	Share2,
-	ArrowLeft,
-	ShoppingCart,
-	User,
-	Calendar,
-	Check,
-	Star,
-	Trash2,
-	Upload,
-	GripVertical,
-} from "lucide-react";
+import { Heart, Eye, Share2, ArrowLeft, ShoppingCart, Check, Star, Trash2, Upload, GripVertical } from "lucide-react";
 
 const FALLBACK_IMAGE = "/logo/brandmark_squared.png";
 
@@ -101,7 +88,7 @@ export default function ArtworkPage() {
 			}
 			setLiked(!liked);
 		} catch {
-			// ignore
+			/* ignore */
 		}
 	};
 
@@ -110,11 +97,9 @@ export default function ArtworkPage() {
 		setPurchasing(true);
 		try {
 			const res = await PurchaseService.purchase(artwork.id);
-			if (res.ok) {
-				setPurchased(true);
-			}
+			if (res.ok) setPurchased(true);
 		} catch {
-			// ignore
+			/* ignore */
 		} finally {
 			setPurchasing(false);
 		}
@@ -122,10 +107,7 @@ export default function ArtworkPage() {
 
 	const handleShare = () => {
 		if (navigator.share) {
-			navigator.share({
-				title: artwork?.title,
-				url: window.location.href,
-			});
+			navigator.share({ title: artwork?.title, url: window.location.href });
 		} else {
 			navigator.clipboard.writeText(window.location.href);
 		}
@@ -177,16 +159,11 @@ export default function ArtworkPage() {
 	};
 
 	const handleReorderByIds = async (orderedImageIds: number[]) => {
-		if (orderedImageIds.length !== images.length) {
-			return;
-		}
-
+		if (orderedImageIds.length !== images.length) return;
 		setImageActionBusy(true);
 		setError(null);
 		try {
-			const response = await ArtworkService.reorderImages(artworkId, {
-				orderedImageIds,
-			});
+			const response = await ArtworkService.reorderImages(artworkId, { orderedImageIds });
 			if (!response.ok) {
 				const data = await response.json();
 				throw new Error(data.message || "Failed to reorder images");
@@ -209,7 +186,6 @@ export default function ArtworkPage() {
 			setDraggedImageId(null);
 			return;
 		}
-
 		const currentIds = images.map((image) => image.id);
 		const from = currentIds.indexOf(draggedImageId);
 		const to = currentIds.indexOf(targetImageId);
@@ -217,7 +193,6 @@ export default function ArtworkPage() {
 			setDraggedImageId(null);
 			return;
 		}
-
 		const next = [...currentIds];
 		next.splice(from, 1);
 		next.splice(to, 0, draggedImageId);
@@ -242,85 +217,92 @@ export default function ArtworkPage() {
 		}
 	};
 
-	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat("en-US", {
-			style: "currency",
-			currency: "EUR",
-		}).format(price);
-	};
+	const formatPrice = (price: number) =>
+		new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(price);
 
-	const formatDate = (date: string) => {
-		return new Date(date).toLocaleDateString("en-US", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
-	};
+	const formatDate = (date: string) =>
+		new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+	const creatorInitial = (artwork?.creator?.username || "?")[0].toUpperCase();
 
 	if (loading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+				<div className="w-8 h-8 border border-stone-300 dark:border-stone-700 border-t-stone-900 dark:border-t-stone-100 rounded-full animate-spin" />
 			</div>
 		);
 	}
 
 	if (!artwork) {
 		return (
-			<div className="min-h-screen flex flex-col items-center justify-center">
-				<h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">Artwork not found</h1>
+			<div className="min-h-screen flex flex-col items-center justify-center gap-4">
+				<h1 className="font-[var(--font-bricolage)] text-2xl font-semibold text-stone-900 dark:text-stone-100">
+					Artwork not found
+				</h1>
 				<button
 					onClick={() => router.push("/")}
-					className="text-violet-500 hover:text-violet-600"
+					className="text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
 				>
-					Go back home
+					Return to gallery
 				</button>
 			</div>
 		);
 	}
 
 	return (
-		<div className="min-h-screen bg-white dark:bg-zinc-950">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+		<div className="min-h-screen">
+			{/* Back nav */}
+			<div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-6 pb-2">
 				<button
 					onClick={() => router.back()}
-					className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+					className="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors duration-300"
 				>
-					<ArrowLeft size={20} />
+					<ArrowLeft
+						size={16}
+						strokeWidth={1.5}
+					/>
 					Back
 				</button>
 			</div>
 
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-				<div className="grid lg:grid-cols-2 gap-12">
-					<div className="relative">
-						<div className="aspect-square rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 shadow-2xl">
+			<div className="max-w-[1400px] mx-auto px-6 lg:px-10 pb-24">
+				<div className="grid lg:grid-cols-[1fr_400px] gap-12 lg:gap-20">
+					{/* === Image section === */}
+					<div>
+						{/* Main image */}
+						<div className="overflow-hidden rounded-lg bg-stone-100 dark:bg-stone-900">
 							<img
 								src={activeImage?.url || artwork.imageUrl || FALLBACK_IMAGE}
 								alt={artwork.title}
-								className="w-full h-full object-cover"
+								className="w-full h-auto object-cover"
 							/>
 						</div>
 
-						{images.length > 0 && (
-							<div className="mt-4 grid grid-cols-4 gap-3">
+						{/* Thumbnails */}
+						{images.length > 1 && (
+							<div className="mt-4 flex gap-3 overflow-x-auto pb-2">
 								{images.map((image) => (
 									<button
 										key={image.id}
 										type="button"
 										onClick={() => setActiveImageId(image.id)}
-										className={`relative rounded-xl overflow-hidden border-2 ${
-											activeImage?.id === image.id ? "border-violet-500" : "border-transparent"
+										className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden transition-all duration-300 ${
+											activeImage?.id === image.id
+												? "ring-2 ring-stone-900 dark:ring-stone-100 ring-offset-2 ring-offset-stone-50 dark:ring-offset-stone-950"
+												: "opacity-60 hover:opacity-100"
 										}`}
 									>
 										<img
 											src={image.thumbnailUrl || image.url || FALLBACK_IMAGE}
 											alt={image.originalFileName}
-											className="w-full h-20 object-cover"
+											className="w-full h-full object-cover"
 										/>
 										{image.isMainImage && (
-											<span className="absolute top-1 left-1 inline-flex items-center gap-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
-												<Star size={10} /> Main
+											<span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-stone-900/70 dark:bg-stone-100/70 flex items-center justify-center">
+												<Star
+													size={8}
+													className="text-white dark:text-stone-900"
+												/>
 											</span>
 										)}
 									</button>
@@ -328,12 +310,18 @@ export default function ArtworkPage() {
 							</div>
 						)}
 
+						{/* Owner image management */}
 						{isOwner && (
-							<div className="mt-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4">
-								<div className="flex items-center justify-between gap-4 mb-4">
-									<p className="text-sm text-zinc-500 dark:text-zinc-400">Manage artwork images</p>
-									<label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 text-white text-sm cursor-pointer hover:bg-zinc-800 transition-colors">
-										<Upload size={14} />
+							<div className="mt-8 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+								<div className="flex items-center justify-between gap-4 mb-5">
+									<p className="text-xs tracking-editorial text-stone-400 dark:text-stone-600">
+										Manage Images
+									</p>
+									<label className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-medium cursor-pointer hover:bg-stone-800 dark:hover:bg-stone-200 transition-colors duration-300">
+										<Upload
+											size={12}
+											strokeWidth={1.5}
+										/>
 										Upload
 										<input
 											type="file"
@@ -346,7 +334,7 @@ export default function ArtworkPage() {
 									</label>
 								</div>
 
-								<div className="space-y-2">
+								<div className="space-y-1.5">
 									{images.map((image, index) => (
 										<div
 											key={image.id}
@@ -354,121 +342,146 @@ export default function ArtworkPage() {
 											onDragStart={() => handleDragStart(image.id)}
 											onDragOver={(e) => e.preventDefault()}
 											onDrop={() => handleDropOnImage(image.id)}
-											className="flex items-center justify-between gap-2 text-sm bg-zinc-50 dark:bg-zinc-900 rounded-lg px-3 py-2"
+											className="flex items-center justify-between gap-2 text-sm bg-stone-50 dark:bg-stone-900 rounded-md px-3 py-2.5 group/row"
 										>
-											<div className="truncate">
-												<span className="font-medium text-zinc-800 dark:text-zinc-100">
-													#{index + 1}
-												</span>{" "}
-												<span className="text-zinc-600 dark:text-zinc-400 truncate">
+											<div className="flex items-center gap-2 truncate">
+												<span className="text-stone-400 group-hover/row:text-stone-600 dark:group-hover/row:text-stone-300 cursor-grab">
+													<GripVertical
+														size={14}
+														strokeWidth={1.5}
+													/>
+												</span>
+												<span className="text-xs font-medium text-stone-500 dark:text-stone-400 w-5">
+													{index + 1}
+												</span>
+												<span className="text-stone-700 dark:text-stone-300 truncate text-xs">
 													{image.originalFileName}
 												</span>
 											</div>
-											<div className="flex items-center gap-1">
-												<span className="p-1.5 text-zinc-500">
-													<GripVertical size={14} />
-												</span>
+											<div className="flex items-center gap-0.5">
 												<button
 													onClick={() => handleSetMain(image.id)}
 													disabled={imageActionBusy || image.isMainImage}
-													className="p-1.5 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-40"
+													className="p-1.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700 disabled:opacity-30 transition-colors"
 													title="Set as main"
 												>
 													<Star
-														size={14}
+														size={13}
+														strokeWidth={1.5}
 														className={
-															image.isMainImage ? "text-yellow-500 fill-yellow-500" : ""
+															image.isMainImage
+																? "text-amber-500 fill-amber-500"
+																: "text-stone-400"
 														}
 													/>
 												</button>
 												<button
 													onClick={() => handleDeleteImage(image.id)}
 													disabled={imageActionBusy}
-													className="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 disabled:opacity-40"
+													className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-stone-400 hover:text-red-500 disabled:opacity-30 transition-colors"
 													title="Delete"
 												>
-													<Trash2 size={14} />
+													<Trash2
+														size={13}
+														strokeWidth={1.5}
+													/>
 												</button>
 											</div>
 										</div>
 									))}
 								</div>
-								<p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
-									Drag rows by the grip icon to reorder images.
+								<p className="mt-3 text-[11px] text-stone-400 dark:text-stone-600">
+									Drag to reorder. First image without a main tag becomes the cover.
 								</p>
 							</div>
 						)}
 					</div>
 
-					<div className="flex flex-col">
+					{/* === Details section === */}
+					<div className="lg:sticky lg:top-24 lg:self-start">
+						{/* Creator */}
 						<Link
 							href={`/profile/${artwork.creator?.id}`}
-							className="flex items-center gap-3 mb-6 group"
+							className="flex items-center gap-3 mb-8 group"
 						>
-							<div className="w-12 h-12 rounded-full bg-linear-to-br from-violet-400 to-fuchsia-500 flex items-center justify-center">
-								<User
-									className="text-white"
-									size={20}
-								/>
+							<div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center text-sm font-semibold text-stone-600 dark:text-stone-300">
+								{creatorInitial}
 							</div>
 							<div>
-								<p className="text-sm text-zinc-500 dark:text-zinc-400">Created by</p>
-								<p className="font-medium text-zinc-900 dark:text-white group-hover:text-violet-500 transition-colors">
+								<p className="text-[11px] text-stone-400 dark:text-stone-600">Artist</p>
+								<p className="text-sm font-medium text-stone-900 dark:text-stone-100 group-hover:text-stone-500 transition-colors duration-300">
 									{artwork.creator?.username || "Unknown"}
 								</p>
 							</div>
 						</Link>
 
-						<h1 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
+						{/* Title */}
+						<h1 className="font-[var(--font-bricolage)] text-3xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100 leading-[1.15] mb-4">
 							{artwork.title}
 						</h1>
 
+						{/* Description */}
 						{artwork.description && (
-							<p className="text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
+							<p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed mb-8">
 								{artwork.description}
 							</p>
 						)}
 
-						<div className="flex items-center gap-6 mb-8 text-zinc-500 dark:text-zinc-400">
-							<div className="flex items-center gap-2">
-								<Eye size={18} />
-								<span>{artwork.views} views</span>
+						{/* Stats */}
+						<div className="flex items-center gap-5 mb-8 text-xs text-stone-400 dark:text-stone-500">
+							<div className="flex items-center gap-1.5">
+								<Eye
+									size={14}
+									strokeWidth={1.5}
+								/>
+								<span>{artwork.views?.toLocaleString()}</span>
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-1.5">
 								<Heart
-									size={18}
+									size={14}
+									strokeWidth={1.5}
 									className={liked ? "fill-red-500 text-red-500" : ""}
 								/>
-								<span>{likeCount} likes</span>
+								<span>{likeCount}</span>
 							</div>
-							<div className="flex items-center gap-2">
-								<Calendar size={18} />
-								<span>{formatDate(artwork.createdAt)}</span>
-							</div>
+							<span>{formatDate(artwork.createdAt)}</span>
 						</div>
 
-						<div className="bg-zinc-50 dark:bg-zinc-900 rounded-2xl p-6 mb-6">
-							<p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Price</p>
-							<p className="text-3xl font-bold text-zinc-900 dark:text-white">
+						{/* Divider */}
+						<div className="border-t border-stone-200 dark:border-stone-800 mb-8" />
+
+						{/* Price */}
+						<div className="mb-8">
+							<p className="text-[11px] tracking-editorial text-stone-400 dark:text-stone-600 mb-2">
+								Price
+							</p>
+							<p className="font-[var(--font-bricolage)] text-3xl font-bold text-stone-900 dark:text-stone-100">
 								{formatPrice(artwork.price)}
 							</p>
 						</div>
 
-						<div className="flex flex-wrap gap-3">
+						{/* Actions */}
+						<div className="flex gap-3">
 							{!isOwner && !purchased && (
 								<button
 									onClick={handlePurchase}
 									disabled={purchasing || !user}
-									className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+									className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-full text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-200 transition-colors duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
 								>
-									<ShoppingCart size={20} />
+									<ShoppingCart
+										size={16}
+										strokeWidth={1.5}
+									/>
 									{purchasing ? "Processing..." : "Purchase"}
 								</button>
 							)}
 
 							{purchased && (
-								<div className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-green-500 text-white rounded-xl font-medium">
-									<Check size={20} />
+								<div className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 text-white rounded-full text-sm font-medium">
+									<Check
+										size={16}
+										strokeWidth={1.5}
+									/>
 									Purchased
 								</div>
 							)}
@@ -477,14 +490,15 @@ export default function ArtworkPage() {
 								onClick={handleLike}
 								disabled={!user}
 								title="Like artwork"
-								className={`p-4 rounded-xl border transition-colors ${
+								className={`w-12 h-12 flex items-center justify-center rounded-full border transition-all duration-300 ${
 									liked
 										? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-500"
-										: "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-								} disabled:opacity-50 disabled:cursor-not-allowed`}
+										: "border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-600"
+								} disabled:opacity-30 disabled:cursor-not-allowed`}
 							>
 								<Heart
-									size={20}
+									size={16}
+									strokeWidth={1.5}
 									className={liked ? "fill-current" : ""}
 								/>
 							</button>
@@ -492,20 +506,23 @@ export default function ArtworkPage() {
 							<button
 								onClick={handleShare}
 								title="Share artwork"
-								className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+								className="w-12 h-12 flex items-center justify-center rounded-full border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300"
 							>
-								<Share2 size={20} />
+								<Share2
+									size={16}
+									strokeWidth={1.5}
+								/>
 							</button>
 						</div>
 
 						{error && (
-							<div className="mt-4 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
+							<div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 text-xs">
 								{error}
 							</div>
 						)}
 
 						{!user && (
-							<p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400 text-center">
+							<p className="mt-6 text-xs text-stone-400 dark:text-stone-600 text-center">
 								Sign in to purchase or like this artwork
 							</p>
 						)}

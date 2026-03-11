@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Grid3X3, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Image as ImageIcon } from "lucide-react";
 import { AccountDto, ArtworkSummaryDto } from "@/src/types";
 import AccountService from "@/src/services/account.service";
 import ArtworkGrid from "@/src/components/ArtworkGrid";
@@ -51,26 +51,21 @@ export default function ProfilePage() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-white">
-				<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-					{/* Header skeleton */}
+			<div className="min-h-screen">
+				<div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-12">
 					<div className="flex items-center gap-8 mb-12">
-						<div className="w-32 h-32 rounded-full bg-gray-100 animate-pulse" />
+						<div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-stone-100 dark:bg-stone-900 animate-pulse" />
 						<div className="flex-1">
-							<div className="h-8 w-48 bg-gray-100 rounded animate-pulse mb-3" />
-							<div className="h-5 w-64 bg-gray-100 rounded animate-pulse mb-4" />
-							<div className="flex gap-8">
-								<div className="h-5 w-24 bg-gray-100 rounded animate-pulse" />
-								<div className="h-5 w-24 bg-gray-100 rounded animate-pulse" />
-							</div>
+							<div className="h-7 w-48 bg-stone-100 dark:bg-stone-900 rounded animate-pulse mb-3" />
+							<div className="h-4 w-28 bg-stone-100 dark:bg-stone-900 rounded animate-pulse" />
 						</div>
 					</div>
-					{/* Grid skeleton */}
-					<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-						{[...Array(8)].map((_, i) => (
+					<div className="masonry-grid">
+						{[...Array(6)].map((_, i) => (
 							<div
 								key={i}
-								className="aspect-square bg-gray-100 rounded-xl animate-pulse"
+								className="mb-4 rounded-md bg-stone-100 dark:bg-stone-900 animate-pulse"
+								style={{ height: `${200 + (i % 3) * 80}px` }}
 							/>
 						))}
 					</div>
@@ -81,15 +76,23 @@ export default function ProfilePage() {
 
 	if (error || !account) {
 		return (
-			<div className="min-h-screen bg-white flex items-center justify-center">
+			<div className="min-h-screen flex items-center justify-center">
 				<div className="text-center">
-					<h1 className="text-2xl font-semibold text-gray-900 mb-2">Profile not found</h1>
-					<p className="text-gray-500 mb-6">This profile doesn't exist or has been removed.</p>
+					<h1 className="font-[var(--font-bricolage)] text-2xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
+						Profile not found
+					</h1>
+					<p className="text-stone-500 dark:text-stone-400 text-sm mb-6">
+						This profile doesn&apos;t exist or has been removed.
+					</p>
 					<Link
 						href="/"
-						className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+						className="text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors duration-300"
 					>
-						<ArrowLeft size={18} />
+						<ArrowLeft
+							size={14}
+							strokeWidth={1.5}
+							className="inline mr-1"
+						/>
 						Back to gallery
 					</Link>
 				</div>
@@ -97,92 +100,81 @@ export default function ProfilePage() {
 		);
 	}
 
-	// Generate initials for avatar
-	const initials = account.username
-		.split(" ")
-		.map((n: string) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
+	const initial = account.username.charAt(0).toUpperCase();
 
 	return (
-		<div className="min-h-screen bg-white">
-			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-				{/* Back button */}
+		<div className="min-h-screen">
+			<div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-12">
 				<Link
 					href="/"
-					className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-8 transition-colors"
+					className="inline-flex items-center gap-2 text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mb-10 transition-colors duration-300"
 				>
-					<ArrowLeft size={18} />
-					<span>Back</span>
+					<ArrowLeft
+						size={16}
+						strokeWidth={1.5}
+					/>
+					Back
 				</Link>
 
 				{/* Profile header */}
 				<div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 mb-12">
-					{/* Avatar */}
-					<div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center text-white text-3xl sm:text-4xl font-medium flex-shrink-0">
-						{initials}
+					<div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-stone-900 dark:bg-stone-100 flex items-center justify-center text-white dark:text-stone-900 text-2xl sm:text-3xl font-semibold flex-shrink-0">
+						{initial}
 					</div>
 
-					{/* Info */}
 					<div className="flex-1 text-center sm:text-left">
-						<div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
-							<h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">{account.username}</h1>
+						<div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
+							<h1 className="font-[var(--font-bricolage)] text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
+								{account.username}
+							</h1>
 							{isOwn && (
-								<span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 self-center sm:self-auto">
-									Your profile
+								<span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 self-center sm:self-auto">
+									You
 								</span>
 							)}
 						</div>
 
-						{account.email && <p className="text-gray-500 mb-4">{account.email}</p>}
+						{account.email && (
+							<p className="text-sm text-stone-500 dark:text-stone-400 mb-3">{account.email}</p>
+						)}
 
-						{/* Stats */}
-						<div className="flex items-center justify-center sm:justify-start gap-6 text-sm">
-							<div className="flex items-center gap-2 text-gray-600">
-								<Grid3X3 size={16} />
-								<span>
-									<strong className="text-gray-900">{artworks.length}</strong> artworks
-								</span>
-							</div>
-						</div>
+						<p className="text-sm text-stone-500 dark:text-stone-400">
+							<strong className="text-stone-900 dark:text-stone-100">{artworks.length}</strong> artwork
+							{artworks.length !== 1 ? "s" : ""}
+						</p>
 					</div>
 
-					{/* Edit button (if own profile) */}
 					{isOwn && (
 						<Link
 							href="/settings"
-							className="px-6 py-2 border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+							className="px-5 py-2 border border-stone-200 dark:border-stone-800 rounded-full text-sm font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors duration-300"
 						>
 							Edit Profile
 						</Link>
 					)}
 				</div>
 
-				{/* Divider */}
-				<div className="border-t border-gray-100 mb-8" />
+				<div className="editorial-line mb-8" />
 
-				{/* Artworks section */}
+				{/* Artworks */}
 				<div className="mb-6">
-					<div className="flex items-center gap-2 text-gray-900 font-medium">
-						<ImageIcon size={18} />
-						<span>Artworks</span>
-					</div>
+					<p className="tracking-editorial text-stone-400 dark:text-stone-600">Works</p>
 				</div>
 
 				{artworks.length === 0 ? (
-					<div className="text-center py-16">
-						<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+					<div className="text-center py-20">
+						<div className="w-14 h-14 mx-auto mb-4 rounded-full bg-stone-100 dark:bg-stone-900 flex items-center justify-center">
 							<ImageIcon
-								size={24}
-								className="text-gray-400"
+								size={20}
+								strokeWidth={1.5}
+								className="text-stone-400 dark:text-stone-600"
 							/>
 						</div>
-						<p className="text-gray-500 mb-2">No artworks yet</p>
+						<p className="text-stone-500 dark:text-stone-400 text-sm mb-3">No artworks yet</p>
 						{isOwn && (
 							<Link
 								href="/upload"
-								className="text-gray-900 font-medium hover:underline"
+								className="text-sm font-medium text-stone-900 dark:text-stone-100 hover:underline"
 							>
 								Upload your first artwork
 							</Link>

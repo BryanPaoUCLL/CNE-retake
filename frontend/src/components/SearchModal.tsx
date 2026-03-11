@@ -19,7 +19,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const router = useRouter();
 
-	// Fetch trending on mount
 	useEffect(() => {
 		if (isOpen) {
 			ArtworkService.trending()
@@ -30,7 +29,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 		}
 	}, [isOpen]);
 
-	// Search with debounce
 	const searchArtworks = useCallback(async (q: string) => {
 		if (!q.trim()) {
 			setResults([]);
@@ -55,18 +53,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 		return () => clearTimeout(timer);
 	}, [query, searchArtworks]);
 
-	// Keyboard shortcuts
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
 				e.preventDefault();
-				if (isOpen) {
-					onClose();
-				}
+				if (isOpen) onClose();
 			}
-			if (e.key === "Escape" && isOpen) {
-				onClose();
-			}
+			if (e.key === "Escape" && isOpen) onClose();
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
@@ -85,19 +78,18 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
 	return (
 		<div className="fixed inset-0 z-[100] pt-20 px-4">
-			{/* Backdrop */}
 			<div
-				className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+				className="absolute inset-0 bg-black/40 backdrop-blur-sm"
 				onClick={onClose}
 			/>
 
-			{/* Modal */}
-			<div className="relative max-w-2xl mx-auto bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden">
+			<div className="relative max-w-xl mx-auto bg-white dark:bg-stone-900 rounded-xl shadow-2xl overflow-hidden border border-stone-200 dark:border-stone-800">
 				{/* Search input */}
-				<div className="flex items-center gap-3 px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
+				<div className="flex items-center gap-3 px-5 py-4 border-b border-stone-200 dark:border-stone-800">
 					<Search
-						size={20}
-						className="text-zinc-400"
+						size={18}
+						strokeWidth={1.5}
+						className="text-stone-400 dark:text-stone-600"
 					/>
 					<input
 						ref={inputRef}
@@ -105,35 +97,45 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
 						placeholder="Search artworks, artists..."
-						className="flex-1 bg-transparent text-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none"
+						className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-600 focus:outline-none"
 					/>
 					{query && (
 						<button
 							onClick={() => setQuery("")}
-							className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+							className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
 						>
-							<X size={18} />
+							<X
+								size={16}
+								strokeWidth={1.5}
+							/>
 						</button>
 					)}
-					<kbd className="hidden sm:block text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-2 py-1 rounded">
+					<kbd className="hidden sm:block text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-600 px-1.5 py-0.5 rounded">
 						ESC
 					</kbd>
 				</div>
 
 				{/* Results */}
-				<div className="max-h-[400px] overflow-y-auto">
+				<div className="max-h-[380px] overflow-y-auto">
 					{showTrendingLabel && (
-						<div className="flex items-center gap-2 px-5 py-3 text-sm text-zinc-500 dark:text-zinc-400">
-							<TrendingUp size={16} />
+						<div className="flex items-center gap-2 px-5 py-3 text-xs tracking-editorial text-stone-400 dark:text-stone-600">
+							<TrendingUp
+								size={12}
+								strokeWidth={1.5}
+							/>
 							Trending
 						</div>
 					)}
 
-					{loading && <div className="px-5 py-8 text-center text-zinc-500">Searching...</div>}
+					{loading && (
+						<div className="px-5 py-8 text-center text-sm text-stone-400 dark:text-stone-600">
+							Searching...
+						</div>
+					)}
 
 					{!loading && displayResults.length === 0 && query.trim() && (
-						<div className="px-5 py-8 text-center text-zinc-500">
-							No artworks found for &quot;{query}&quot;
+						<div className="px-5 py-8 text-center text-sm text-stone-400 dark:text-stone-600">
+							No results for &quot;{query}&quot;
 						</div>
 					)}
 
@@ -142,33 +144,33 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 							<button
 								key={artwork.id}
 								onClick={() => navigateToArtwork(artwork.id)}
-								className="w-full flex items-center gap-4 px-5 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-left"
+								className="w-full flex items-center gap-4 px-5 py-3 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors duration-200 text-left"
 							>
 								<img
 									src={artwork.imageUrl || "/placeholder.jpg"}
 									alt={artwork.title}
-									className="w-12 h-12 rounded-lg object-cover bg-zinc-100 dark:bg-zinc-800"
+									className="w-11 h-11 rounded-md object-cover bg-stone-100 dark:bg-stone-800"
 								/>
 								<div className="flex-1 min-w-0">
-									<p className="font-medium text-zinc-900 dark:text-white truncate">
+									<p className="text-sm font-medium text-stone-900 dark:text-stone-100 truncate">
 										{artwork.title}
 									</p>
-									<p className="text-sm text-zinc-500 dark:text-zinc-400">
+									<p className="text-xs text-stone-500 dark:text-stone-400">
 										{artwork.creator?.username || "Unknown"}
 									</p>
 								</div>
-								<span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-									€{artwork.price.toFixed(2)}
+								<span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+									&euro;{artwork.price.toFixed(2)}
 								</span>
 							</button>
 						))}
 				</div>
 
 				{/* Footer */}
-				<div className="px-5 py-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
+				<div className="px-5 py-2.5 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between text-[10px] text-stone-400 dark:text-stone-600">
 					<span>Type to search</span>
 					<span className="flex items-center gap-1">
-						<kbd className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">↵</kbd>
+						<kbd className="bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">&crarr;</kbd>
 						to select
 					</span>
 				</div>
