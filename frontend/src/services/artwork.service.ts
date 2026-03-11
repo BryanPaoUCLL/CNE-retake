@@ -9,6 +9,7 @@ const list = (page: number = 0, size: number = 20, sort?: string) => {
 	return fetch(`${API_URL}/artworks?${params}`, {
 		method: "GET",
 		credentials: "include",
+		cache: "no-store",
 		headers: { "Content-Type": "application/json" },
 	});
 };
@@ -17,6 +18,7 @@ const getById = (id: number) => {
 	return fetch(`${API_URL}/artworks/${id}`, {
 		method: "GET",
 		credentials: "include",
+		cache: "no-store",
 		headers: { "Content-Type": "application/json" },
 	});
 };
@@ -25,6 +27,7 @@ const search = (query: string) => {
 	return fetch(`${API_URL}/artworks/search?query=${encodeURIComponent(query)}`, {
 		method: "GET",
 		credentials: "include",
+		cache: "no-store",
 		headers: { "Content-Type": "application/json" },
 	});
 };
@@ -33,6 +36,7 @@ const trending = () => {
 	return fetch(`${API_URL}/artworks/trending`, {
 		method: "GET",
 		credentials: "include",
+		cache: "no-store",
 		headers: { "Content-Type": "application/json" },
 	});
 };
@@ -66,6 +70,7 @@ const listImages = (id: number) => {
 	return fetch(`${API_URL}/artworks/${id}/images`, {
 		method: "GET",
 		credentials: "include",
+		cache: "no-store",
 		headers: { "Content-Type": "application/json" },
 	});
 };
@@ -122,6 +127,27 @@ const getLikeCount = (id: number) => {
 	return fetch(`${API_URL}/artworks/${id}/likes`, {
 		method: "GET",
 		credentials: "include",
+		cache: "no-store",
+		headers: { "Content-Type": "application/json" },
+	});
+};
+
+const searchByTag = (tag: string) => {
+	return fetch(`${API_URL}/artworks/search/tag?tag=${encodeURIComponent(tag)}`, {
+		method: "GET",
+		credentials: "include",
+		cache: "no-store",
+		headers: { "Content-Type": "application/json" },
+	});
+};
+
+const tagSuggestions = (query: string = "") => {
+	const params = new URLSearchParams();
+	if (query.trim()) params.append("query", query.trim());
+	return fetch(`${API_URL}/tags/suggestions?${params.toString()}`, {
+		method: "GET",
+		credentials: "include",
+		cache: "no-store",
 		headers: { "Content-Type": "application/json" },
 	});
 };
@@ -130,6 +156,8 @@ const ArtworkService = {
 	list,
 	getById,
 	search,
+	searchByTag,
+	tagSuggestions,
 	trending,
 	create,
 	update,

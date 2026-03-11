@@ -7,7 +7,7 @@ import { ArtworkDto, ArtworkImageDto, LikeCountDto } from "../../../src/types";
 import { useAuth } from "../../../src/context/AuthContext";
 import ArtworkService from "../../../src/services/artwork.service";
 import PurchaseService from "../../../src/services/purchase.service";
-import { Heart, Eye, Share2, ArrowLeft, ShoppingCart, Check, Star, Trash2, Upload, GripVertical } from "lucide-react";
+import { Heart, Eye, Share2, ArrowLeft, ShoppingCart, Check, Star, Pencil } from "lucide-react";
 
 const FALLBACK_IMAGE = "/logo/brandmark_squared.png";
 
@@ -23,9 +23,7 @@ export default function ArtworkPage() {
 	const [purchasing, setPurchasing] = useState(false);
 	const [purchased, setPurchased] = useState(false);
 	const [activeImageId, setActiveImageId] = useState<number | null>(null);
-	const [imageActionBusy, setImageActionBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [draggedImageId, setDraggedImageId] = useState<number | null>(null);
 
 	const artworkId = Number(id);
 	const isOwner = user?.id === artwork?.creator?.id;
@@ -113,110 +111,6 @@ export default function ArtworkPage() {
 		}
 	};
 
-	const refreshArtwork = async () => {
-		const res = await ArtworkService.getById(artworkId);
-		if (res.ok) {
-			const data = await res.json();
-			setArtwork(data);
-		}
-	};
-
-	const handleUploadImages = async (fileList: FileList | null) => {
-		if (!fileList || fileList.length === 0) return;
-		setImageActionBusy(true);
-		setError(null);
-		try {
-			const files = Array.from(fileList);
-			const response = await ArtworkService.uploadImages(artworkId, files);
-			if (!response.ok) {
-				const data = await response.json();
-				throw new Error(data.message || "Image upload failed");
-			}
-			await refreshArtwork();
-		} catch (err: any) {
-			setError(err.message || "Image upload failed");
-		} finally {
-			setImageActionBusy(false);
-		}
-	};
-
-	const handleSetMain = async (imageId: number) => {
-		setImageActionBusy(true);
-		setError(null);
-		try {
-			const response = await ArtworkService.setMainImage(artworkId, imageId);
-			if (!response.ok) {
-				const data = await response.json();
-				throw new Error(data.message || "Failed to set main image");
-			}
-			await refreshArtwork();
-			setActiveImageId(imageId);
-		} catch (err: any) {
-			setError(err.message || "Failed to set main image");
-		} finally {
-			setImageActionBusy(false);
-		}
-	};
-
-	const handleReorderByIds = async (orderedImageIds: number[]) => {
-		if (orderedImageIds.length !== images.length) return;
-		setImageActionBusy(true);
-		setError(null);
-		try {
-			const response = await ArtworkService.reorderImages(artworkId, { orderedImageIds });
-			if (!response.ok) {
-				const data = await response.json();
-				throw new Error(data.message || "Failed to reorder images");
-			}
-			await refreshArtwork();
-		} catch (err: any) {
-			setError(err.message || "Failed to reorder images");
-		} finally {
-			setImageActionBusy(false);
-		}
-	};
-
-	const handleDragStart = (imageId: number) => {
-		if (imageActionBusy) return;
-		setDraggedImageId(imageId);
-	};
-
-	const handleDropOnImage = (targetImageId: number) => {
-		if (!draggedImageId || draggedImageId === targetImageId) {
-			setDraggedImageId(null);
-			return;
-		}
-		const currentIds = images.map((image) => image.id);
-		const from = currentIds.indexOf(draggedImageId);
-		const to = currentIds.indexOf(targetImageId);
-		if (from < 0 || to < 0) {
-			setDraggedImageId(null);
-			return;
-		}
-		const next = [...currentIds];
-		next.splice(from, 1);
-		next.splice(to, 0, draggedImageId);
-		setDraggedImageId(null);
-		void handleReorderByIds(next);
-	};
-
-	const handleDeleteImage = async (imageId: number) => {
-		setImageActionBusy(true);
-		setError(null);
-		try {
-			const response = await ArtworkService.deleteImage(artworkId, imageId);
-			if (!response.ok) {
-				const data = await response.json();
-				throw new Error(data.message || "Failed to delete image");
-			}
-			await refreshArtwork();
-		} catch (err: any) {
-			setError(err.message || "Failed to delete image");
-		} finally {
-			setImageActionBusy(false);
-		}
-	};
-
 	const formatPrice = (price: number) =>
 		new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(price);
 
@@ -270,11 +164,11 @@ export default function ArtworkPage() {
 					{/* === Image section === */}
 					<div>
 						{/* Main image */}
-						<div className="overflow-hidden rounded-lg bg-stone-100 dark:bg-stone-900">
+						<div className="overflow-hidden rounded-xl bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 dark:from-stone-900 dark:via-stone-950 dark:to-stone-800 border border-stone-200/70 dark:border-stone-800/70">
 							<img
 								src={activeImage?.url || artwork.imageUrl || FALLBACK_IMAGE}
 								alt={artwork.title}
-								className="w-full h-auto object-cover"
+								className="w-full max-h-[78vh] object-contain"
 							/>
 						</div>
 
@@ -309,92 +203,6 @@ export default function ArtworkPage() {
 								))}
 							</div>
 						)}
-
-						{/* Owner image management */}
-						{isOwner && (
-							<div className="mt-8 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
-								<div className="flex items-center justify-between gap-4 mb-5">
-									<p className="text-xs tracking-editorial text-stone-400 dark:text-stone-600">
-										Manage Images
-									</p>
-									<label className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-medium cursor-pointer hover:bg-stone-800 dark:hover:bg-stone-200 transition-colors duration-300">
-										<Upload
-											size={12}
-											strokeWidth={1.5}
-										/>
-										Upload
-										<input
-											type="file"
-											multiple
-											accept="image/jpeg,image/png,image/webp,image/jpg"
-											onChange={(e) => handleUploadImages(e.target.files)}
-											className="hidden"
-											disabled={imageActionBusy}
-										/>
-									</label>
-								</div>
-
-								<div className="space-y-1.5">
-									{images.map((image, index) => (
-										<div
-											key={image.id}
-											draggable={!imageActionBusy}
-											onDragStart={() => handleDragStart(image.id)}
-											onDragOver={(e) => e.preventDefault()}
-											onDrop={() => handleDropOnImage(image.id)}
-											className="flex items-center justify-between gap-2 text-sm bg-stone-50 dark:bg-stone-900 rounded-md px-3 py-2.5 group/row"
-										>
-											<div className="flex items-center gap-2 truncate">
-												<span className="text-stone-400 group-hover/row:text-stone-600 dark:group-hover/row:text-stone-300 cursor-grab">
-													<GripVertical
-														size={14}
-														strokeWidth={1.5}
-													/>
-												</span>
-												<span className="text-xs font-medium text-stone-500 dark:text-stone-400 w-5">
-													{index + 1}
-												</span>
-												<span className="text-stone-700 dark:text-stone-300 truncate text-xs">
-													{image.originalFileName}
-												</span>
-											</div>
-											<div className="flex items-center gap-0.5">
-												<button
-													onClick={() => handleSetMain(image.id)}
-													disabled={imageActionBusy || image.isMainImage}
-													className="p-1.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700 disabled:opacity-30 transition-colors"
-													title="Set as main"
-												>
-													<Star
-														size={13}
-														strokeWidth={1.5}
-														className={
-															image.isMainImage
-																? "text-amber-500 fill-amber-500"
-																: "text-stone-400"
-														}
-													/>
-												</button>
-												<button
-													onClick={() => handleDeleteImage(image.id)}
-													disabled={imageActionBusy}
-													className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-stone-400 hover:text-red-500 disabled:opacity-30 transition-colors"
-													title="Delete"
-												>
-													<Trash2
-														size={13}
-														strokeWidth={1.5}
-													/>
-												</button>
-											</div>
-										</div>
-									))}
-								</div>
-								<p className="mt-3 text-[11px] text-stone-400 dark:text-stone-600">
-									Drag to reorder. First image without a main tag becomes the cover.
-								</p>
-							</div>
-						)}
 					</div>
 
 					{/* === Details section === */}
@@ -427,6 +235,19 @@ export default function ArtworkPage() {
 							</p>
 						)}
 
+						{artwork.tags && artwork.tags.length > 0 && (
+							<div className="flex flex-wrap gap-2 mb-8">
+								{artwork.tags.map((tag) => (
+									<span
+										key={tag}
+										className="px-2.5 py-1 rounded-full text-xs border border-stone-200 dark:border-stone-700 text-stone-500 dark:text-stone-400"
+									>
+										{tag}
+									</span>
+								))}
+							</div>
+						)}
+
 						{/* Stats */}
 						<div className="flex items-center gap-5 mb-8 text-xs text-stone-400 dark:text-stone-500">
 							<div className="flex items-center gap-1.5">
@@ -434,7 +255,7 @@ export default function ArtworkPage() {
 									size={14}
 									strokeWidth={1.5}
 								/>
-								<span>{artwork.views?.toLocaleString()}</span>
+								<span>{(artwork.views ?? 0).toLocaleString()}</span>
 							</div>
 							<div className="flex items-center gap-1.5">
 								<Heart
@@ -462,6 +283,19 @@ export default function ArtworkPage() {
 
 						{/* Actions */}
 						<div className="flex gap-3">
+							{isOwner && (
+								<Link
+									href={`/artwork/${artwork.id}/edit`}
+									className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-full text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-200 transition-colors duration-300"
+								>
+									<Pencil
+										size={16}
+										strokeWidth={1.5}
+									/>
+									Edit mode
+								</Link>
+							)}
+
 							{!isOwner && !purchased && (
 								<button
 									onClick={handlePurchase}

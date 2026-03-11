@@ -13,7 +13,7 @@ interface ArtworkCardProps {
 
 export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardProps) {
 	const [imageLoaded, setImageLoaded] = useState(false);
-	const imageSrc = artwork.thumbnailUrl || artwork.imageUrl || "/logo/brandmark_squared.png";
+	const [imageSrc, setImageSrc] = useState(artwork.thumbnailUrl || artwork.imageUrl || "/logo/brandmark_squared.png");
 
 	const formatPrice = (price: number) =>
 		new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }).format(price);
@@ -28,7 +28,7 @@ export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardPr
 	return (
 		<div className="group">
 			<Link href={`/artwork/${artwork.id}`}>
-				<div className="relative overflow-hidden rounded-lg bg-stone-100 dark:bg-stone-900">
+				<div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 dark:from-stone-900 dark:via-stone-950 dark:to-stone-800">
 					{/* Skeleton */}
 					{!imageLoaded && <div className="absolute inset-0 bg-stone-200 dark:bg-stone-800 animate-pulse" />}
 
@@ -40,7 +40,10 @@ export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardPr
 							imageLoaded ? "opacity-100" : "opacity-0"
 						}`}
 						onLoad={() => setImageLoaded(true)}
-						onError={() => setImageLoaded(true)}
+						onError={() => {
+							setImageSrc("/logo/brandmark_squared.png");
+							setImageLoaded(true);
+						}}
 						loading={priority ? "eager" : "lazy"}
 					/>
 
@@ -76,6 +79,18 @@ export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardPr
 				<h3 className="text-sm font-medium text-stone-800 dark:text-stone-200 line-clamp-1 group-hover:text-stone-600 dark:group-hover:text-stone-400 transition-colors duration-300">
 					{artwork.title}
 				</h3>
+				{artwork.tags && artwork.tags.length > 0 && (
+					<div className="flex flex-wrap gap-1.5">
+						{artwork.tags.slice(0, 2).map((tag) => (
+							<span
+								key={tag}
+								className="px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700 text-[10px] text-stone-500 dark:text-stone-400"
+							>
+								{tag}
+							</span>
+						))}
+					</div>
+				)}
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
 						<div className="w-5 h-5 rounded-full bg-stone-300 dark:bg-stone-700 flex items-center justify-center text-[8px] font-semibold text-stone-600 dark:text-stone-300">
@@ -90,7 +105,7 @@ export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardPr
 							size={11}
 							strokeWidth={1.5}
 						/>
-						{artwork.views}
+						{artwork.views ?? 0}
 					</div>
 				</div>
 			</div>
