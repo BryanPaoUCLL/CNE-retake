@@ -152,12 +152,23 @@ const tagSuggestions = (query: string = "") => {
 	});
 };
 
+const popularTags = (limit: number = 10) => {
+	const params = new URLSearchParams({ limit: String(limit) });
+	return fetch(`${API_URL}/tags/popular?${params.toString()}`, {
+		method: "GET",
+		credentials: "include",
+		cache: "no-store",
+		headers: { "Content-Type": "application/json" },
+	});
+};
+
 const ArtworkService = {
 	list,
 	getById,
 	search,
 	searchByTag,
 	tagSuggestions,
+	popularTags,
 	trending,
 	create,
 	update,

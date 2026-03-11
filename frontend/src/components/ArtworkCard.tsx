@@ -79,6 +79,11 @@ export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardPr
 				<h3 className="text-sm font-medium text-stone-800 dark:text-stone-200 line-clamp-1 group-hover:text-stone-600 dark:group-hover:text-stone-400 transition-colors duration-300">
 					{artwork.title}
 				</h3>
+				{typeof artwork.searchScore === "number" && artwork.searchScore > 0 && (
+					<p className="text-[10px] uppercase tracking-wide text-stone-400 dark:text-stone-500">
+						Relevance {artwork.searchScore}
+					</p>
+				)}
 				{artwork.tags && artwork.tags.length > 0 && (
 					<div className="flex flex-wrap gap-1.5">
 						{artwork.tags.slice(0, 2).map((tag) => (
@@ -96,9 +101,14 @@ export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardPr
 						<div className="w-5 h-5 rounded-full bg-stone-300 dark:bg-stone-700 flex items-center justify-center text-[8px] font-semibold text-stone-600 dark:text-stone-300">
 							{initials}
 						</div>
-						<span className="text-xs text-stone-500 dark:text-stone-500 truncate">
-							{artwork.creator?.username || "Unknown"}
-						</span>
+						<div className="flex flex-col">
+							<span className="text-xs text-stone-500 dark:text-stone-500 truncate">
+								{artwork.creator?.username || "Unknown"}
+							</span>
+							{artwork.year && (
+								<span className="text-[10px] text-stone-400 dark:text-stone-600">{artwork.year}</span>
+							)}
+						</div>
 					</div>
 					<div className="flex items-center gap-1 text-xs text-stone-400 dark:text-stone-600">
 						<Eye

@@ -20,6 +20,7 @@ public class ArtworkDto {
     private String imageUrl;
     private String thumbnailUrl;
     private BigDecimal price;
+    private Integer year;
     private int views;
     private Instant createdAt;
     private AccountSummaryDto creator;

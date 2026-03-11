@@ -39,14 +39,18 @@ public class SecurityConfig {
                 ).permitAll()
                 // Public registration
                 .requestMatchers(HttpMethod.POST, "/accounts").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Public GET endpoints
                 .requestMatchers(HttpMethod.GET,
                     "/artworks",
                     "/artworks/search",
+                    "/artworks/search/tag",
                     "/artworks/trending",
                     "/artworks/*",
                     "/artworks/*/images",
                     "/artworks/*/likes",
+                    "/tags/suggestions",
+                    "/tags/popular",
                     "/accounts",
                     "/accounts/*",
                     "/accounts/*/artworks"

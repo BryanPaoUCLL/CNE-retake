@@ -7,6 +7,9 @@ import ArtworkService from "@/src/services/artwork.service";
 import { useAuth } from "@/src/context/AuthContext";
 import { TagSuggestionDto } from "@/src/types";
 
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_FILE_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+
 function normalizeTag(input: string): string {
 	return input.trim().toLowerCase().replace(/\s+/g, "-");
 }
@@ -21,6 +24,7 @@ export default function UploadPage() {
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [price, setPrice] = useState("");
+	const [year, setYear] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
 	const [tagInput, setTagInput] = useState("");
 	const [tagSuggestions, setTagSuggestions] = useState<TagSuggestionDto[]>([]);
@@ -28,6 +32,7 @@ export default function UploadPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 	const [isDropActive, setIsDropActive] = useState(false);
+	const [allowNewTags, setAllowNewTags] = useState(false);
 	const draggedIdx = useRef<number | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +72,19 @@ export default function UploadPage() {
 
 	const addFiles = (incoming: FileList | null) => {
 		if (!incoming) return;
-		const valid = Array.from(incoming).filter((file) => file.type.startsWith("image/"));
+		setError(null);
+
+		const valid = Array.from(incoming).filter((file) => {
+			if (!ALLOWED_FILE_TYPES.has(file.type)) {
+				setError("Only JPG, PNG or WEBP images are allowed.");
+				return false;
+			}
+			if (file.size > MAX_FILE_SIZE_BYTES) {
+				setError("Each image must be at most 5MB.");
+				return false;
+			}
+			return true;
+		});
 		if (!valid.length) return;
 
 		setFiles((prev) => {
@@ -148,38 +165,56 @@ export default function UploadPage() {
 			setTagInput("");
 			return;
 		}
+
+		const knownTags = new Set(tagSuggestions.map((entry) => normalizeTag(entry.name)));
+		if (!knownTags.has(cleaned) && !allowNewTags) {
+			setError("Use an existing suggested tag first. Enable 'Allow new tags' only if needed.");
+			return;
+		}
+
 		setTags((prev) => [...prev, cleaned]);
 		setTagInput("");
+		setError(null);
 	};
 
 	const removeTag = (tag: string) => setTags((prev) => prev.filter((entry) => entry !== tag));
 
 	const canSubmit =
-		files.length > 0 && title.trim().length > 0 && price.trim() !== "" && Number(price) >= 0 && !uploading;
+		files.length > 0 &&
+		title.trim().length > 0 &&
+		price.trim() !== "" &&
+		Number(price) >= 0 &&
+		(year.trim() === "" || (Number(year) >= 1000 && Number(year) <= 2100)) &&
+		!uploading;
 
 	const handleSubmit = async () => {
 		if (!canSubmit) return;
 		setUploading(true);
 		setError(null);
+		let createdArtworkId: number | null = null;
 
 		try {
 			const createRes = await ArtworkService.create({
 				title: title.trim(),
 				description: description.trim() || undefined,
 				price: Number(price),
+				year: year.trim() ? Number(year) : undefined,
 				tags,
 			});
 
 			if (!createRes.ok) {
-				throw new Error("Failed to create artwork");
+				const detail = await readErrorResponse(createRes, "Failed to create artwork");
+				throw new Error(detail);
 			}
 
 			const artwork = await createRes.json();
+			createdArtworkId = artwork.id;
 
 			for (let i = 0; i < files.length; i += 1) {
 				const uploadRes = await ArtworkService.uploadImages(artwork.id, [files[i]]);
 				if (!uploadRes.ok) {
-					throw new Error(`Failed to upload image ${i + 1}`);
+					const detail = await readErrorResponse(uploadRes, `Failed to upload image ${i + 1}`);
+					throw new Error(detail);
 				}
 			}
 
@@ -198,9 +233,33 @@ export default function UploadPage() {
 
 			router.push(`/artwork/${artwork.id}`);
 		} catch (err: unknown) {
-			setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
+			if (createdArtworkId) {
+				try {
+					await ArtworkService.remove(createdArtworkId);
+				} catch {
+					/* ignore cleanup failure */
+				}
+			}
+			if (err instanceof TypeError) {
+				setError("Network error while uploading images. Check backend availability and CORS config.");
+			} else {
+				setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
+			}
+		} finally {
 			setUploading(false);
 		}
+	};
+
+	const readErrorResponse = async (res: Response, fallback: string) => {
+		try {
+			const body = await res.json();
+			if (body?.message && typeof body.message === "string") {
+				return body.message;
+			}
+		} catch {
+			/* ignore non-json body */
+		}
+		return `${fallback} (HTTP ${res.status})`;
 	};
 
 	if (loading || !user) return null;
@@ -327,6 +386,8 @@ export default function UploadPage() {
 						<input
 							ref={fileInputRef}
 							type="file"
+							aria-label="Upload artwork images"
+							title="Upload artwork images"
 							accept="image/jpeg,image/png,image/webp,image/jpg"
 							multiple
 							onChange={(e) => addFiles(e.target.files)}
@@ -380,6 +441,21 @@ export default function UploadPage() {
 
 						<div>
 							<label className="text-xs font-semibold tracking-widest uppercase text-stone-500">
+								Year (optional)
+							</label>
+							<input
+								type="number"
+								value={year}
+								onChange={(e) => setYear(e.target.value)}
+								min="1000"
+								max="2100"
+								placeholder="e.g. 1891"
+								className="mt-2 w-full rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 py-3 text-sm"
+							/>
+						</div>
+
+						<div>
+							<label className="text-xs font-semibold tracking-widest uppercase text-stone-500">
 								Tags
 							</label>
 							<div className="mt-2 flex gap-2">
@@ -401,6 +477,16 @@ export default function UploadPage() {
 									className="px-4 py-3 rounded-lg bg-stone-100 dark:bg-stone-800 text-sm"
 								>
 									Add
+								</button>
+							</div>
+
+							<div className="mt-2">
+								<button
+									type="button"
+									onClick={() => setAllowNewTags((prev) => !prev)}
+									className="text-[11px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-2"
+								>
+									{allowNewTags ? "Only suggested tags" : "Allow new tags"}
 								</button>
 							</div>
 
@@ -434,6 +520,8 @@ export default function UploadPage() {
 											<button
 												type="button"
 												onClick={() => removeTag(tag)}
+												aria-label={`Remove tag ${tag}`}
+												title={`Remove tag ${tag}`}
 											>
 												<X
 													size={10}

@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local seeding assets ###
+downloaded_artworks/
+src/main/resources/seed/*.local.json

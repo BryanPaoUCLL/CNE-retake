@@ -21,7 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -58,6 +61,7 @@ public class ArtworkService {
             .title(body.getTitle().trim())
             .description(Optional.ofNullable(body.getDescription()).map(String::trim).orElse(null))
             .price(body.getPrice())
+            .year(normalizeArtworkYear(body.getYear()))
             .tags(tagService.resolveCanonicalTags(body.getTags()))
             .creator(creator)
             .build();
@@ -84,6 +88,9 @@ public class ArtworkService {
         if (body.getPrice() != null) {
             artwork.setPrice(body.getPrice());
         }
+        if (body.getYear() != null) {
+            artwork.setYear(normalizeArtworkYear(body.getYear()));
+        }
         if (body.getTags() != null) {
             artwork.getTags().clear();
             artwork.getTags().addAll(tagService.resolveCanonicalTags(body.getTags()));
@@ -108,16 +115,34 @@ public class ArtworkService {
         if (query == null || query.isBlank()) {
             return List.of();
         }
-        return artworkRepository.findByTitleContainingIgnoreCase(query.trim())
+        String normalizedQuery = normalizeSearchText(query);
+        List<String> queryTokens = splitTokens(normalizedQuery);
+
+        return artworkRepository.findAll()
             .stream()
-            .map(this::toSummaryDto)
+            .map(artwork -> {
+                int score = computeSearchScore(artwork, normalizedQuery, queryTokens);
+                if (score <= 0) {
+                    return null;
+                }
+                ArtworkSummaryDto dto = toSummaryDto(artwork);
+                dto.setSearchScore(score);
+                return dto;
+            })
+            .filter(java.util.Objects::nonNull)
+            .sorted(Comparator
+                .comparing(ArtworkSummaryDto::getSearchScore, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(ArtworkSummaryDto::getViews, Comparator.reverseOrder())
+                .thenComparing(ArtworkSummaryDto::getCreatedAt, Comparator.reverseOrder()))
+            .limit(80)
             .toList();
     }
 
     public List<ArtworkSummaryDto> searchByTag(String tag) {
         if (tag == null || tag.isBlank()) return List.of();
-        return artworkRepository.findByTagNameContainingIgnoreCase(tag.trim())
+        return tagService.findArtworksByTagQuery(tag.trim())
             .stream()
+            .sorted(Comparator.comparing(Artwork::getViews).reversed().thenComparing(Artwork::getCreatedAt).reversed())
             .map(this::toSummaryDto)
             .toList();
     }
@@ -152,6 +177,7 @@ public class ArtworkService {
             .title(artwork.getTitle())
             .description(artwork.getDescription())
             .price(artwork.getPrice())
+            .year(artwork.getYear())
             .views(artwork.getViews())
             .createdAt(artwork.getCreatedAt())
             .creator(artwork.getCreator() != null ? artwork.getCreator().toSummaryDto() : null)
@@ -175,6 +201,7 @@ public class ArtworkService {
             .id(artwork.getId())
             .title(artwork.getTitle())
             .price(artwork.getPrice())
+            .year(artwork.getYear())
             .views(artwork.getViews())
             .createdAt(artwork.getCreatedAt())
             .creator(artwork.getCreator() != null ? artwork.getCreator().toSummaryDto() : null)
@@ -221,5 +248,139 @@ public class ArtworkService {
         if (body.getPrice() == null) {
             throw new ServiceException("Artwork price is required", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private int computeSearchScore(Artwork artwork, String normalizedQuery, List<String> queryTokens) {
+        String normalizedTitle = normalizeSearchText(artwork.getTitle());
+        String normalizedDescription = normalizeSearchText(artwork.getDescription());
+        String normalizedCreator = normalizeSearchText(artwork.getCreator() != null ? artwork.getCreator().getUsername() : "");
+        String normalizedYear = artwork.getYear() == null ? "" : String.valueOf(artwork.getYear());
+        String normalizedTags = artwork.getTags() == null
+            ? ""
+            : normalizeSearchText(String.join(" ", artwork.getTags().stream().map(Tag::getName).toList()));
+
+        int score = 0;
+        score += scoreField(normalizedQuery, queryTokens, normalizedTitle, 80, 26, 18, 16);
+        score += scoreField(normalizedQuery, queryTokens, normalizedDescription, 28, 12, 8, 9);
+        score += scoreField(normalizedQuery, queryTokens, normalizedTags, 44, 18, 12, 12);
+        score += scoreField(normalizedQuery, queryTokens, normalizedCreator, 18, 10, 7, 8);
+        score += scoreField(normalizedQuery, queryTokens, normalizedYear, 24, 14, 10, 0);
+
+        if (score > 0) {
+            score += Math.min(8, artwork.getViews() / 40);
+        }
+
+        return score;
+    }
+
+    private int scoreField(
+        String normalizedQuery,
+        List<String> queryTokens,
+        String field,
+        int exactWeight,
+        int containsWeight,
+        int perTokenWeight,
+        int typoWeight
+    ) {
+        if (field == null || field.isBlank()) {
+            return 0;
+        }
+
+        int score = 0;
+        if (field.equals(normalizedQuery)) {
+            score += exactWeight;
+        }
+        if (field.contains(normalizedQuery)) {
+            score += containsWeight;
+        }
+
+        List<String> fieldTokens = splitTokens(field);
+        int tokenScore = 0;
+        for (String token : queryTokens) {
+            if (token.isBlank()) {
+                continue;
+            }
+            if (field.contains(token)) {
+                tokenScore += perTokenWeight;
+                continue;
+            }
+
+            if (hasTypoTolerantTokenMatch(token, fieldTokens)) {
+                tokenScore += typoWeight;
+            }
+        }
+
+        score += tokenScore;
+        return score;
+    }
+
+    private boolean hasTypoTolerantTokenMatch(String queryToken, List<String> fieldTokens) {
+        int maxDistance = queryToken.length() <= 4 ? 1 : 2;
+        for (String fieldToken : fieldTokens) {
+            if (fieldToken.isBlank()) {
+                continue;
+            }
+            int distance = levenshtein(queryToken, fieldToken);
+            if (distance <= maxDistance) {
+                return true;
+            }
+            if (fieldToken.contains(queryToken) || queryToken.contains(fieldToken)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String normalizeSearchText(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value
+            .trim()
+            .toLowerCase(Locale.ROOT)
+            .replaceAll("[^a-z0-9\\s-]", " ")
+            .replaceAll("\\s+", " ");
+    }
+
+    private List<String> splitTokens(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+        String[] raw = value.split(" ");
+        List<String> result = new ArrayList<>(raw.length);
+        for (String token : raw) {
+            if (!token.isBlank()) {
+                result.add(token);
+            }
+        }
+        return result;
+    }
+
+    private int levenshtein(String left, String right) {
+        int[][] dp = new int[left.length() + 1][right.length() + 1];
+        for (int i = 0; i <= left.length(); i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= right.length(); j++) {
+            dp[0][j] = j;
+        }
+
+        for (int i = 1; i <= left.length(); i++) {
+            for (int j = 1; j <= right.length(); j++) {
+                int cost = left.charAt(i - 1) == right.charAt(j - 1) ? 0 : 1;
+                dp[i][j] = Math.min(
+                    Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1),
+                    dp[i - 1][j - 1] + cost
+                );
+            }
+        }
+        return dp[left.length()][right.length()];
+    }
+
+    private Integer normalizeArtworkYear(Integer year) {
+        if (year == null) {
+            return null;
+        }
+        return (year >= 1000 && year <= 2100) ? year : null;
     }
 }

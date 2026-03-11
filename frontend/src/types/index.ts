@@ -38,6 +38,7 @@ export interface ArtworkDto {
 	imageUrl?: string;
 	thumbnailUrl?: string;
 	price: number;
+	year?: number;
 	views: number;
 	createdAt: string;
 	creator: AccountSummaryDto;
@@ -51,10 +52,12 @@ export interface ArtworkSummaryDto {
 	imageUrl?: string;
 	thumbnailUrl?: string;
 	price: number;
+	year?: number;
 	views: number;
 	createdAt: string;
 	creator: AccountSummaryDto;
 	tags?: string[];
+	searchScore?: number;
 }
 
 export interface ArtworkImageDto {
@@ -78,6 +81,7 @@ export interface ArtworkCreateDto {
 	title: string;
 	description?: string;
 	price: number;
+	year?: number;
 	tags?: string[];
 }
 
@@ -85,6 +89,7 @@ export interface ArtworkUpdateDto {
 	title?: string;
 	description?: string;
 	price?: number;
+	year?: number;
 	tags?: string[];
 }
 
@@ -96,6 +101,7 @@ export interface TagSuggestionDto {
 	id: number;
 	name: string;
 	description?: string;
+	usageCount?: number;
 }
 
 // ==================== Like Types ====================

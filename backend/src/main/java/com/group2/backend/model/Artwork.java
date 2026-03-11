@@ -37,6 +37,9 @@ public class Artwork {
     @NotNull
     private BigDecimal price;
 
+    @Column(name = "artwork_year")
+    private Integer year;
+
     @Column
     @Builder.Default
     private int views = 0;
@@ -100,6 +103,7 @@ public class Artwork {
             .imageUrl(mainImage != null ? mainImage.getUrl() : null)
             .thumbnailUrl(mainImage != null ? mainImage.getThumbnailUrl() : null)
             .price(this.price)
+            .year(this.year)
             .views(this.views)
             .createdAt(this.createdAt)
             .creator(creatorDto)
@@ -124,6 +128,7 @@ public class Artwork {
             .imageUrl(mainImage != null ? mainImage.getBlobName() : null)
             .thumbnailUrl(mainImage != null ? mainImage.getThumbnailBlobName() : null)
             .price(this.price)
+            .year(this.year)
             .views(this.views)
             .createdAt(this.createdAt)
             .creator(creatorDto)

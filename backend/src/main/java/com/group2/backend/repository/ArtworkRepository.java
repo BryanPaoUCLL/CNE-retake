@@ -15,6 +15,9 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
 	@Query("select distinct a from Artwork a join a.tags t where lower(t.name) like lower(concat('%', :tag, '%'))")
 	List<Artwork> findByTagNameContainingIgnoreCase(@Param("tag") String tag);
 
+	@Query("select distinct a from Artwork a join a.tags t where t.id = :tagId")
+	List<Artwork> findByTagId(@Param("tagId") Long tagId);
+
 	List<Artwork> findTop10ByOrderByViewsDesc();
 
 	List<Artwork> findByCreatorId(Integer creatorId);

@@ -31,4 +31,13 @@ public class TagController {
     public ResponseEntity<List<TagSuggestionDto>> suggestions(@RequestParam(required = false) String query) {
         return ResponseEntity.ok(tagService.suggestTags(query));
     }
+
+    @GetMapping("/popular")
+    @Operation(summary = "Popular tags", description = "Returns most used tags")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK")
+    })
+    public ResponseEntity<List<TagSuggestionDto>> popular(@RequestParam(required = false) Integer limit) {
+        return ResponseEntity.ok(tagService.popularTags(limit));
+    }
 }

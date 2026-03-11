@@ -16,6 +16,8 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
     List<Tag> findTop30ByOrderByUsageCountDescNameAsc();
 
+    List<Tag> findTop10ByOrderByUsageCountDescNameAsc();
+
     List<Tag> findTop20ByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrderByUsageCountDescNameAsc(
         String nameQuery,
         String descriptionQuery

@@ -1,8 +1,10 @@
 package com.group2.backend.service;
 
 import com.group2.backend.dto.TagSuggestionDto;
+import com.group2.backend.model.Artwork;
 import com.group2.backend.model.Tag;
 import com.group2.backend.model.TagAlias;
+import com.group2.backend.repository.ArtworkRepository;
 import com.group2.backend.repository.TagAliasRepository;
 import com.group2.backend.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +18,11 @@ import java.util.*;
 @Transactional
 public class TagService {
 
+    private static final int DEFAULT_POPULAR_TAG_LIMIT = 10;
+
     private final TagRepository tagRepository;
     private final TagAliasRepository tagAliasRepository;
+    private final ArtworkRepository artworkRepository;
 
     public List<Tag> resolveCanonicalTags(List<String> inputTags) {
         if (inputTags == null || inputTags.isEmpty()) return List.of();
@@ -70,8 +75,56 @@ public class TagService {
                 .id(tag.getId())
                 .name(tag.getName())
                 .description(tag.getDescription())
+                .usageCount(tag.getUsageCount())
                 .build())
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TagSuggestionDto> popularTags(Integer limit) {
+        int effectiveLimit = (limit == null || limit <= 0) ? DEFAULT_POPULAR_TAG_LIMIT : Math.min(limit, 50);
+        List<Tag> seed = effectiveLimit <= 10
+            ? tagRepository.findTop10ByOrderByUsageCountDescNameAsc()
+            : tagRepository.findTop30ByOrderByUsageCountDescNameAsc();
+
+        return seed.stream()
+            .limit(effectiveLimit)
+            .map(tag -> TagSuggestionDto.builder()
+                .id(tag.getId())
+                .name(tag.getName())
+                .description(tag.getDescription())
+                .usageCount(tag.getUsageCount())
+                .build())
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Artwork> findArtworksByTagQuery(String rawTagQuery) {
+        if (rawTagQuery == null || rawTagQuery.isBlank()) {
+            return List.of();
+        }
+
+        String normalized = normalize(rawTagQuery);
+        if (normalized.isBlank()) {
+            return List.of();
+        }
+
+        Optional<Tag> exact = tagRepository.findByNormalizedName(normalized);
+        if (exact.isPresent()) {
+            return artworkRepository.findByTagId(exact.get().getId());
+        }
+
+        Optional<TagAlias> alias = tagAliasRepository.findByNormalizedAlias(normalized);
+        if (alias.isPresent()) {
+            return artworkRepository.findByTagId(alias.get().getTag().getId());
+        }
+
+        Optional<Tag> fuzzy = findBestMatch(normalized);
+        if (fuzzy.isPresent()) {
+            return artworkRepository.findByTagId(fuzzy.get().getId());
+        }
+
+        return artworkRepository.findByTagNameContainingIgnoreCase(rawTagQuery.trim());
     }
 
     private Tag resolveTag(String raw, String normalized) {

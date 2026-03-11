@@ -16,5 +16,6 @@ public class ArtworkCreateDto {
     private String title;
     private String description;
     private BigDecimal price;
+    private Integer year;
     private List<String> tags;
 }

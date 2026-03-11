@@ -235,15 +235,23 @@ export default function ArtworkPage() {
 							</p>
 						)}
 
+						{artwork.year && (
+							<p className="text-xs tracking-editorial text-stone-400 dark:text-stone-600 mb-5">
+								Year {artwork.year}
+							</p>
+						)}
+
 						{artwork.tags && artwork.tags.length > 0 && (
 							<div className="flex flex-wrap gap-2 mb-8">
 								{artwork.tags.map((tag) => (
-									<span
+									<button
 										key={tag}
+										type="button"
+										onClick={() => router.push(`/?tag=${encodeURIComponent(tag)}`)}
 										className="px-2.5 py-1 rounded-full text-xs border border-stone-200 dark:border-stone-700 text-stone-500 dark:text-stone-400"
 									>
 										{tag}
-									</span>
+									</button>
 								))}
 							</div>
 						)}
@@ -265,6 +273,7 @@ export default function ArtworkPage() {
 								/>
 								<span>{likeCount}</span>
 							</div>
+							{artwork.year && <span>{artwork.year}</span>}
 							<span>{formatDate(artwork.createdAt)}</span>
 						</div>
 
