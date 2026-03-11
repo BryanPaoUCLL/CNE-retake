@@ -90,7 +90,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 		<AuthProvider>
 			<div className="min-h-screen flex flex-col">
 				<Navbar
-					onSearchClick={openSearch}
+					onSearchClick={() => openSearch()}
 					onLoginClick={openAuthModal}
 				/>
 				<main className="flex-1 pt-20">{children}</main>
