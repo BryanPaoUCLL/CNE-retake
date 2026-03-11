@@ -27,6 +27,7 @@ export default function UploadPage() {
 	const [uploading, setUploading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+	const [isDropActive, setIsDropActive] = useState(false);
 	const draggedIdx = useRef<number | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,6 +128,20 @@ export default function UploadPage() {
 		setDragOverIdx(null);
 	};
 
+	const handleUploadZoneDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+		e.preventDefault();
+		e.dataTransfer.dropEffect = "copy";
+		setIsDropActive(true);
+	};
+
+	const handleUploadZoneDrop = (e: React.DragEvent<HTMLDivElement>) => {
+		e.preventDefault();
+		setIsDropActive(false);
+		if (e.dataTransfer.files?.length) {
+			addFiles(e.dataTransfer.files);
+		}
+	};
+
 	const addTag = (raw: string) => {
 		const cleaned = normalizeTag(raw);
 		if (!cleaned || tags.includes(cleaned) || tags.length >= 10) {
@@ -193,8 +208,8 @@ export default function UploadPage() {
 	const selectedPreview = previews[selectedIndex]?.url;
 
 	return (
-		<div className="min-h-screen">
-			<div className="max-w-[1300px] mx-auto px-6 lg:px-10 py-10">
+		<div className="min-h-screen w-full">
+			<div className="mx-auto px-6 lg:px-10 py-10">
 				<div className="mb-8">
 					<p className="tracking-editorial text-stone-400 dark:text-stone-600 mb-3">Create artwork</p>
 					<h1 className="font-display text-3xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
@@ -202,27 +217,35 @@ export default function UploadPage() {
 					</h1>
 				</div>
 
-				<div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-8">
-					<section className="rounded-xl border border-stone-200 dark:border-stone-800 p-4 sm:p-5 bg-white dark:bg-stone-950">
-						<div className="rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-900 min-h-[420px] flex items-center justify-center">
+				<div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] w-full gap-8">
+					<section className="min-w-0 rounded-xl border border-stone-200 dark:border-stone-800 p-4 sm:p-5 bg-white dark:bg-stone-950">
+						<div
+							onDragEnter={() => setIsDropActive(true)}
+							onDragOver={handleUploadZoneDragOver}
+							onDragLeave={() => setIsDropActive(false)}
+							onDrop={handleUploadZoneDrop}
+							className={`rounded-lg overflow-hidden bg-stone-200 dark:bg-stone-800 h-[360px] sm:h-[440px] md:h-[500px] w-full flex items-center justify-center transition-colors ${
+								isDropActive ? "ring-2 ring-stone-400 bg-stone-300 dark:bg-stone-700" : ""
+							}`}
+						>
 							{selectedPreview ? (
 								<img
 									src={selectedPreview}
 									alt="Selected artwork preview"
-									className="w-full h-full object-contain max-h-[70vh]"
+									className="w-full h-full object-contain"
 								/>
 							) : (
 								<button
 									type="button"
 									onClick={() => fileInputRef.current?.click()}
-									className="text-sm text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
+									className="w-full h-full flex items-center justify-center text-sm text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 cursor-pointer"
 								>
-									Choose your first image
+									Drop your images here or click to add images
 								</button>
 							)}
 						</div>
 
-						<div className="mt-4 flex items-center gap-3 overflow-x-auto pb-1">
+						<div className="mt-4 flex items-center gap-3 w-full min-w-0 max-w-full overflow-x-auto overflow-y-hidden pb-1">
 							{previews.map((preview, idx) => (
 								<div
 									key={`${preview.file.name}-${idx}`}
@@ -234,7 +257,7 @@ export default function UploadPage() {
 										draggedIdx.current = null;
 										setDragOverIdx(null);
 									}}
-									className={`relative shrink-0 w-24 h-24 rounded-md overflow-hidden border transition-all ${
+									className={`relative shrink-0 w-24 h-24 rounded-md overflow-hidden border bg-stone-200 dark:bg-stone-800 transition-all ${
 										selectedIndex === idx
 											? "border-stone-900 dark:border-stone-100"
 											: "border-stone-200 dark:border-stone-700"
@@ -291,7 +314,7 @@ export default function UploadPage() {
 							<button
 								type="button"
 								onClick={() => fileInputRef.current?.click()}
-								className="shrink-0 w-24 h-24 rounded-md border border-dashed border-stone-300 dark:border-stone-600 flex items-center justify-center text-stone-500 hover:border-stone-500"
+								className="shrink-0 w-24 h-24 rounded-md border border-dashed border-stone-300 dark:border-stone-600 bg-stone-200 dark:bg-stone-800 flex items-center justify-center text-stone-500 hover:border-stone-500"
 								title="Add image"
 							>
 								<Plus
@@ -311,7 +334,7 @@ export default function UploadPage() {
 						/>
 					</section>
 
-					<section className="rounded-xl border border-stone-200 dark:border-stone-800 p-5 bg-white dark:bg-stone-950 space-y-5">
+					<section className="min-w-0 rounded-xl border border-stone-200 dark:border-stone-800 p-5 bg-white dark:bg-stone-950 space-y-5">
 						<div>
 							<label className="text-xs font-semibold tracking-widest uppercase text-stone-500">
 								Title

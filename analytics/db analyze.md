@@ -1,4 +1,4 @@
-## Tabel: Schaalniveaus (gebruikers → requests → data)
+3## Tabel: Schaalniveaus (gebruikers → requests → data)
 
 | Daily users | Requests/day | Tekstdata/maand (GB) | Afbeeldingen/maand (GB) |
 | ----------- | ------------ | -------------------- | ----------------------- |

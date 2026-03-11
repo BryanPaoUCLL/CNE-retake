@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import Link from "next/link";
 import { ArtworkSummaryDto, Page } from "../src/types";
 import ArtworkService from "../src/services/artwork.service";
 import ArtworkGrid from "../src/components/ArtworkGrid";
-import { ArrowRight, Clock, TrendingUp, Search, X, Sparkles } from "lucide-react";
+import { Clock, TrendingUp, Search, X } from "lucide-react";
 
 type SortOption = "newest" | "popular";
 type DisplayMode = "list" | "search" | "tag";
@@ -27,7 +26,6 @@ const getSortParam = (s: SortOption) => (s === "newest" ? "createdAt,desc" : "vi
 
 export default function HomePage() {
 	const [artworks, setArtworks] = useState<ArtworkSummaryDto[]>([]);
-	const [trending, setTrending] = useState<ArtworkSummaryDto[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [page, setPage] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
@@ -56,16 +54,6 @@ export default function HomePage() {
 		},
 		[sort],
 	);
-
-	const loadTrending = useCallback(async () => {
-		try {
-			const res = await ArtworkService.trending();
-			const data = await res.json();
-			setTrending(data.slice(0, 5));
-		} catch {
-			/* ignore */
-		}
-	}, []);
 
 	const loadSearch = useCallback(async (query: string) => {
 		setLoading(true);
@@ -97,8 +85,7 @@ export default function HomePage() {
 
 	useEffect(() => {
 		loadArtworks(0, true);
-		loadTrending();
-	}, [loadArtworks, loadTrending]);
+	}, [loadArtworks]);
 
 	useEffect(() => {
 		if (displayMode === "list") {
@@ -218,66 +205,6 @@ export default function HomePage() {
 				</div>
 			</div>
 
-			{/* ===== Trending strip ===== */}
-			{trending.length > 0 && displayMode === "list" && (
-				<div className="border-t border-stone-100 dark:border-stone-900 bg-stone-50 dark:bg-stone-950">
-					<div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-6">
-						<div className="flex items-center gap-4 overflow-x-auto pb-1 scrollbar-none">
-							<div className="flex items-center gap-2 shrink-0">
-								<Sparkles
-									size={13}
-									strokeWidth={1.5}
-									className="text-stone-400"
-								/>
-								<span className="tracking-editorial text-stone-400 dark:text-stone-600 text-[10px]">
-									Trending
-								</span>
-							</div>
-							{trending.map((artwork, i) => (
-								<Link
-									key={artwork.id}
-									href={`/artwork/${artwork.id}`}
-									className="group flex items-center gap-3 shrink-0 pr-4 border-r border-stone-200 dark:border-stone-800 last:border-0"
-								>
-									<div className="relative w-10 h-10 rounded-md overflow-hidden bg-stone-200 dark:bg-stone-800 shrink-0">
-										<img
-											src={
-												artwork.thumbnailUrl ||
-												artwork.imageUrl ||
-												"/logo/brandmark_squared.png"
-											}
-											alt={artwork.title}
-											className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-										/>
-										<div className="absolute top-0 left-0 w-4 h-4 bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm flex items-center justify-center text-[8px] font-bold text-stone-600 dark:text-stone-300 rounded-br-md">
-											{i + 1}
-										</div>
-									</div>
-									<div>
-										<p className="text-xs font-medium text-stone-700 dark:text-stone-300 line-clamp-1 group-hover:text-stone-500 transition-colors max-w-[120px]">
-											{artwork.title}
-										</p>
-										<p className="text-[10px] text-stone-400 dark:text-stone-600">
-											{artwork.views?.toLocaleString()} views
-										</p>
-									</div>
-								</Link>
-							))}
-							<Link
-								href="/trending"
-								className="flex items-center gap-1 shrink-0 text-xs text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors ml-2"
-							>
-								See all
-								<ArrowRight
-									size={11}
-									strokeWidth={1.5}
-								/>
-							</Link>
-						</div>
-					</div>
-				</div>
-			)}
-
 			{/* ===== Gallery Section ===== */}
 			<section className="border-t border-stone-200 dark:border-stone-800">
 				<div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-10">
@@ -347,7 +274,7 @@ export default function HomePage() {
 										{ key: "newest", label: "Recent", icon: Clock },
 										{ key: "popular", label: "Popular", icon: TrendingUp },
 									] as const
-								).map(({ key, label, icon: Icon }, idx) => (
+								).map(({ key, label, icon: Icon }) => (
 									<button
 										key={key}
 										onClick={() => handleSortChange(key)}

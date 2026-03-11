@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "putting things online.md",
+                "file": "db analyze.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "putting things online"
+              "title": "db analyze"
             }
           }
         ],
@@ -200,13 +200,13 @@
   },
   "active": "1862512282c477eb",
   "lastOpenFiles": [
+    "putting things online.md",
     "Pasted image 20260311125200.png",
     "Pasted image 20260311125155.png",
     "Pasted image 20260311125145.png",
     "Pasted image 20260311125134.png",
     "Pasted image 20260311125118.png",
     "Pasted image 20260311123337.png",
-    "db analyze.md",
-    "putting things online.md"
+    "db analyze.md"
   ]
 }
