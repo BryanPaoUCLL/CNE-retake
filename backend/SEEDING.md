@@ -5,11 +5,10 @@ This backend now uses centralized JSON seed files and local image assets.
 ## Seed Sources
 
 - Seeder code: `src/main/java/com/group2/backend/seed/DatabaseSeeder.java`
-- Seeder config: `src/main/resources/seed/dev-seed.json`
 - Central artwork data: `src/main/resources/seed/artworks.json`
 - Central account data: `src/main/resources/seed/accounts.json`
 - Central tag catalog: `src/main/resources/seed/tags.json`
-- Local image assets: `seed_assets/artworks/`
+- Image assets: `src/main/resources/seed/artworks/`
 
 ## Data Model
 
