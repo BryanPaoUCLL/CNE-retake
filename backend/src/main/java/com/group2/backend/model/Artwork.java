@@ -10,7 +10,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "artworks")
@@ -68,6 +70,15 @@ public class Artwork {
     @EqualsAndHashCode.Exclude
     private List<ArtworkImage> images;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "artwork_tag_refs",
+        joinColumns = @JoinColumn(name = "artwork_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @Builder.Default
+    private List<Tag> tags = new ArrayList<>();
+
     public ArtworkDto toDto() {
         AccountSummaryDto creatorDto = creator != null ? creator.toSummaryDto() : null;
         List<ArtworkImageDto> imageDtos = images == null
@@ -93,6 +104,7 @@ public class Artwork {
             .createdAt(this.createdAt)
             .creator(creatorDto)
             .images(imageDtos)
+            .tags(this.tags != null ? this.tags.stream().map(Tag::getName).toList() : List.of())
             .build();
     }
 
@@ -115,6 +127,7 @@ public class Artwork {
             .views(this.views)
             .createdAt(this.createdAt)
             .creator(creatorDto)
+            .tags(this.tags != null ? this.tags.stream().map(Tag::getName).collect(Collectors.toList()) : List.of())
             .build();
     }
 

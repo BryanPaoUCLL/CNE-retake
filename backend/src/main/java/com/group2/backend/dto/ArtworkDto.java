@@ -24,4 +24,5 @@ public class ArtworkDto {
     private Instant createdAt;
     private AccountSummaryDto creator;
     private List<ArtworkImageDto> images;
+    private List<String> tags;
 }

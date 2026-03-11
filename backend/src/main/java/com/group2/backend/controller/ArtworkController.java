@@ -49,6 +49,15 @@ public class ArtworkController {
         return ResponseEntity.ok(artworkService.listArtworks(page, size, sort));
     }
 
+    @GetMapping("/search/tag")
+    @Operation(summary = "Search artworks by tag", description = "Find artworks with a given tag")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK")
+    })
+    public ResponseEntity<List<ArtworkSummaryDto>> searchByTag(@RequestParam String tag) {
+        return ResponseEntity.ok(artworkService.searchByTag(tag));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get artwork", description = "Get artwork by id and increment views")
     @ApiResponses({

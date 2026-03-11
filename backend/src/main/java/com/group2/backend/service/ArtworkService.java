@@ -9,6 +9,7 @@ import com.group2.backend.exception.service.ServiceException;
 import com.group2.backend.model.Account;
 import com.group2.backend.model.Artwork;
 import com.group2.backend.model.ArtworkImage;
+import com.group2.backend.model.Tag;
 import com.group2.backend.repository.ArtworkImageRepository;
 import com.group2.backend.repository.ArtworkRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class ArtworkService {
     private final AuthService authService;
     private final BlobStorageService blobStorageService;
     private final ArtworkImageService artworkImageService;
+    private final TagService tagService;
 
     public Page<ArtworkSummaryDto> listArtworks(int page, int size, String sort) {
         Pageable pageable = buildPageable(page, size, sort);
@@ -56,6 +58,7 @@ public class ArtworkService {
             .title(body.getTitle().trim())
             .description(Optional.ofNullable(body.getDescription()).map(String::trim).orElse(null))
             .price(body.getPrice())
+            .tags(tagService.resolveCanonicalTags(body.getTags()))
             .creator(creator)
             .build();
 
@@ -81,6 +84,10 @@ public class ArtworkService {
         if (body.getPrice() != null) {
             artwork.setPrice(body.getPrice());
         }
+        if (body.getTags() != null) {
+            artwork.getTags().clear();
+            artwork.getTags().addAll(tagService.resolveCanonicalTags(body.getTags()));
+        }
 
         Artwork saved = artworkRepository.save(artwork);
         return toDto(saved);
@@ -102,6 +109,14 @@ public class ArtworkService {
             return List.of();
         }
         return artworkRepository.findByTitleContainingIgnoreCase(query.trim())
+            .stream()
+            .map(this::toSummaryDto)
+            .toList();
+    }
+
+    public List<ArtworkSummaryDto> searchByTag(String tag) {
+        if (tag == null || tag.isBlank()) return List.of();
+        return artworkRepository.findByTagNameContainingIgnoreCase(tag.trim())
             .stream()
             .map(this::toSummaryDto)
             .toList();
@@ -143,6 +158,7 @@ public class ArtworkService {
             .imageUrl(mainImage != null ? mainImage.getUrl() : null)
             .thumbnailUrl(mainImage != null ? mainImage.getThumbnailUrl() : null)
             .images(images)
+            .tags(artwork.getTags() != null ? artwork.getTags().stream().map(Tag::getName).toList() : List.of())
             .build();
     }
 
@@ -164,7 +180,9 @@ public class ArtworkService {
             .creator(artwork.getCreator() != null ? artwork.getCreator().toSummaryDto() : null)
             .imageUrl(mainImage != null ? mainImage.getUrl() : null)
             .thumbnailUrl(mainImage != null ? mainImage.getThumbnailUrl() : null)
+            .tags(artwork.getTags() != null ? artwork.getTags().stream().map(Tag::getName).toList() : List.of())
             .build();
+
     }
 
     private ArtworkImageDto toImageDto(ArtworkImage image) {

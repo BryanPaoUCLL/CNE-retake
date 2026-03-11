@@ -5,16 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ArtworkUpdateDto {
-    private String title;
+public class TagSuggestionDto {
+    private Long id;
+    private String name;
     private String description;
-    private BigDecimal price;
-    private List<String> tags;
 }

@@ -17,6 +17,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -44,6 +45,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final BlobStorageService blobStorageService;
     private final ArtworkImageProcessingService artworkImageProcessingService;
+    private final JdbcTemplate jdbcTemplate;
 
     // ──────────────────────────────────────────────
     // Artist data
@@ -347,6 +349,12 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void clearDatabase() {
+        // Keep cleanup compatible with both old and new tag schemas.
+        deleteIfExists("artwork_tags");
+        deleteIfExists("artwork_tag_refs");
+        deleteIfExists("tag_aliases");
+        deleteIfExists("tags");
+
         artworkLikeRepository.deleteAllInBatch();
         purchaseRepository.deleteAllInBatch();
         artworkImageRepository.deleteAllInBatch();
@@ -354,6 +362,14 @@ public class DatabaseSeeder implements CommandLineRunner {
         artworkRepository.deleteAllInBatch();
         accountRepository.deleteAllInBatch();
         blobStorageService.deleteAll();
+    }
+
+    private void deleteIfExists(String tableName) {
+        try {
+            jdbcTemplate.execute("DELETE FROM " + tableName);
+        } catch (Exception ex) {
+            log.debug("Skipping cleanup for table {} (not present yet): {}", tableName, ex.getMessage());
+        }
     }
 
     private List<Account> seedAccounts() {
