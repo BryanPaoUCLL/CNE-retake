@@ -8,10 +8,11 @@ import { ImageIcon } from "lucide-react";
 interface ArtworkGridProps {
 	artworks: ArtworkSummaryDto[];
 	onLike?: (id: number) => void;
+	onTagSelect?: (tag: string) => void;
 	loading?: boolean;
 }
 
-export default function ArtworkGrid({ artworks, onLike, loading }: ArtworkGridProps) {
+export default function ArtworkGrid({ artworks, onLike, onTagSelect, loading }: ArtworkGridProps) {
 	if (loading) {
 		return (
 			<div className="masonry-grid">
@@ -62,6 +63,7 @@ export default function ArtworkGrid({ artworks, onLike, loading }: ArtworkGridPr
 					key={artwork.id}
 					artwork={artwork}
 					onLike={onLike}
+					onTagSelect={onTagSelect}
 					priority={i < 4}
 				/>
 			))}

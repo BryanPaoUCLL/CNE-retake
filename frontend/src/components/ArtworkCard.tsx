@@ -8,10 +8,11 @@ import { Heart, Eye } from "lucide-react";
 interface ArtworkCardProps {
 	artwork: ArtworkSummaryDto;
 	onLike?: (id: number) => void;
+	onTagSelect?: (tag: string) => void;
 	priority?: boolean;
 }
 
-export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardProps) {
+export default function ArtworkCard({ artwork, onLike, onTagSelect, priority }: ArtworkCardProps) {
 	const [imageLoaded, setImageLoaded] = useState(false);
 	const [imageSrc, setImageSrc] = useState(artwork.thumbnailUrl || artwork.imageUrl || "/logo/brandmark_squared.png");
 
@@ -87,12 +88,16 @@ export default function ArtworkCard({ artwork, onLike, priority }: ArtworkCardPr
 				{artwork.tags && artwork.tags.length > 0 && (
 					<div className="flex flex-wrap gap-1.5">
 						{artwork.tags.slice(0, 2).map((tag) => (
-							<span
+							<button
 								key={tag}
-								className="px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700 text-[10px] text-stone-500 dark:text-stone-400"
+								onClick={(e) => {
+									e.preventDefault();
+									onTagSelect?.(tag);
+								}}
+								className="px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700 text-[10px] text-stone-500 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors cursor-pointer"
 							>
 								{tag}
-							</span>
+							</button>
 						))}
 					</div>
 				)}
