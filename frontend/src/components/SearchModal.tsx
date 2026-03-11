@@ -8,10 +8,11 @@ import ArtworkService from "../services/artwork.service";
 
 interface SearchModalProps {
 	isOpen: boolean;
+	initialQuery?: string;
 	onClose: () => void;
 }
 
-export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
+export default function SearchModal({ isOpen, initialQuery = "", onClose }: SearchModalProps) {
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState<ArtworkSummaryDto[]>([]);
 	const [trending, setTrending] = useState<ArtworkSummaryDto[]>([]);
@@ -21,13 +22,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
 	useEffect(() => {
 		if (isOpen) {
+			setQuery(initialQuery);
 			ArtworkService.trending()
 				.then((res) => res.json())
 				.then((data) => setTrending(data.slice(0, 5)))
 				.catch(() => {});
 			inputRef.current?.focus();
 		}
-	}, [isOpen]);
+	}, [isOpen, initialQuery]);
 
 	const searchArtworks = useCallback(async (q: string) => {
 		if (!q.trim()) {

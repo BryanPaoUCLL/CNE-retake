@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { ArtworkSummaryDto, Page } from "../src/types";
 import ArtworkService from "../src/services/artwork.service";
 import ArtworkGrid from "../src/components/ArtworkGrid";
@@ -36,6 +37,7 @@ export default function HomePage() {
 	const [activeQuery, setActiveQuery] = useState("");
 	const [selectedTag, setSelectedTag] = useState<string | null>(null);
 	const searchRef = useRef<HTMLInputElement>(null);
+	const router = useRouter();
 
 	const loadArtworks = useCallback(
 		async (pageNum: number, reset = false) => {
@@ -96,10 +98,7 @@ export default function HomePage() {
 	const handleSearch = () => {
 		const q = searchInput.trim();
 		if (!q) return;
-		setActiveQuery(q);
-		setSelectedTag(null);
-		setDisplayMode("search");
-		loadSearch(q);
+		router.push(`/?searchbox=true&query=${encodeURIComponent(q)}`);
 	};
 
 	const handleTagSelect = (tag: string) => {

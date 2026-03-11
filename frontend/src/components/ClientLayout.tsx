@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AuthProvider } from "../context/AuthContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -12,11 +12,39 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 	const [authModalOpen, setAuthModalOpen] = useState(false);
 	const [searchModalOpen, setSearchModalOpen] = useState(false);
 	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const searchboxRequested = searchParams.get("searchbox") === "true";
+	const queryFromUrl = searchParams.get("query") || "";
+
+	const setSearchboxInUrl = useCallback(
+		(open: boolean, query: string = "") => {
+			const params = new URLSearchParams(searchParams.toString());
+			if (open) {
+				params.set("searchbox", "true");
+				if (query.trim()) {
+					params.set("query", query.trim());
+				} else {
+					params.delete("query");
+				}
+			} else {
+				params.delete("searchbox");
+				params.delete("query");
+			}
+			const next = params.toString();
+			router.push(next ? `${pathname}?${next}` : pathname, { scroll: false });
+		},
+		[pathname, router, searchParams],
+	);
 
 	const openAuthModal = useCallback(() => setAuthModalOpen(true), []);
 	const closeAuthModal = useCallback(() => setAuthModalOpen(false), []);
-	const openSearch = useCallback(() => setSearchModalOpen(true), []);
-	const closeSearch = useCallback(() => setSearchModalOpen(false), []);
+	const openSearch = useCallback(() => setSearchboxInUrl(true, queryFromUrl), [queryFromUrl, setSearchboxInUrl]);
+	const closeSearch = useCallback(() => setSearchboxInUrl(false), [setSearchboxInUrl]);
+
+	useEffect(() => {
+		setSearchModalOpen(searchboxRequested);
+	}, [searchboxRequested]);
 
 	// Global keyboard shortcuts
 	useEffect(() => {
@@ -27,7 +55,18 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 			// Cmd/Ctrl + K → open search
 			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
 				e.preventDefault();
-				setSearchModalOpen((prev) => !prev);
+				if (searchModalOpen) {
+					closeSearch();
+				} else {
+					openSearch();
+				}
+				return;
+			}
+
+			// Ctrl/Cmd + F → open search modal instead of browser find
+			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
+				e.preventDefault();
+				openSearch();
 				return;
 			}
 
@@ -62,7 +101,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [searchModalOpen, authModalOpen, closeSearch, closeAuthModal, router]);
+	}, [searchModalOpen, authModalOpen, closeSearch, closeAuthModal, openSearch, router]);
 
 	return (
 		<AuthProvider>
@@ -81,6 +120,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 			/>
 			<SearchModal
 				isOpen={searchModalOpen}
+				initialQuery={queryFromUrl}
 				onClose={closeSearch}
 			/>
 		</AuthProvider>
