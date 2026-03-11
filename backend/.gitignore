@@ -34,4 +34,5 @@ build/
 
 ### Local seeding assets ###
 downloaded_artworks/
+seed_assets/artworks/
 src/main/resources/seed/*.local.json
