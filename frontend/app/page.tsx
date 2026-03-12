@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { ArtworkSummaryDto, Page, TagSuggestionDto } from "../src/types";
 import ArtworkService from "../src/services/artwork.service";
 import ArtworkGrid from "../src/components/ArtworkGrid";
@@ -25,10 +24,12 @@ export default function HomePage() {
 	const [selectedTag, setSelectedTag] = useState<string | null>(null);
 	const [popularTags, setPopularTags] = useState<TagSuggestionDto[]>([]);
 	const searchRef = useRef<HTMLInputElement>(null);
-	const router = useRouter();
 
 	const loadArtworks = useCallback(
 		async (pageNum: number, reset = false) => {
+			// Skip if URL already has an active filter (tag/search) to prevent overwriting filtered results
+			const params = new URLSearchParams(window.location.search);
+			if (params.get("tag") || params.get("query")) return;
 			setLoading(true);
 			try {
 				const res = await ArtworkService.list(pageNum, 12, getSortParam(sort));
@@ -63,8 +64,12 @@ export default function HomePage() {
 		setLoading(true);
 		try {
 			const res = await ArtworkService.searchByTag(tag);
+			if (!res.ok) {
+				setArtworks([]);
+				return;
+			}
 			const data: ArtworkSummaryDto[] = await res.json();
-			setArtworks(data);
+			setArtworks(Array.isArray(data) ? data : []);
 			setHasMore(false);
 		} catch {
 			setArtworks([]);
@@ -132,7 +137,7 @@ export default function HomePage() {
 		setActiveQuery(q);
 		setDisplayMode("search");
 		loadSearch(q);
-		router.push(`/?searchbox=true&query=${encodeURIComponent(q)}`);
+		window.history.pushState(null, "", `/?searchbox=true&query=${encodeURIComponent(q)}`);
 	};
 
 	const handleTagSelect = (tag: string) => {
@@ -145,7 +150,7 @@ export default function HomePage() {
 		setSearchInput("");
 		setDisplayMode("tag");
 		loadByTag(tag);
-		router.push(`/?tag=${encodeURIComponent(tag)}`);
+		window.history.pushState(null, "", `/?tag=${encodeURIComponent(tag)}`);
 	};
 
 	const clearFilters = () => {
@@ -153,7 +158,7 @@ export default function HomePage() {
 		setActiveQuery("");
 		setSelectedTag(null);
 		setDisplayMode("list");
-		router.replace("/");
+		window.history.replaceState(null, "", "/");
 	};
 
 	const handleSortChange = (newSort: SortOption) => {

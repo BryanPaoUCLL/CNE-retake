@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArtworkSummaryDto } from "../types";
 import { Heart, Eye } from "lucide-react";
 
@@ -13,6 +14,7 @@ interface ArtworkCardProps {
 }
 
 export default function ArtworkCard({ artwork, onLike, onTagSelect, priority }: ArtworkCardProps) {
+	const router = useRouter();
 	const [imageLoaded, setImageLoaded] = useState(false);
 	const [imageSrc, setImageSrc] = useState(artwork.thumbnailUrl || artwork.imageUrl || "/logo/brandmark_squared.png");
 
@@ -90,9 +92,15 @@ export default function ArtworkCard({ artwork, onLike, onTagSelect, priority }: 
 						{artwork.tags.slice(0, 2).map((tag) => (
 							<button
 								key={tag}
+								type="button"
 								onClick={(e) => {
+									e.stopPropagation();
 									e.preventDefault();
-									onTagSelect?.(tag);
+									if (onTagSelect) {
+										onTagSelect(tag);
+									} else {
+										router.push(`/?tag=${encodeURIComponent(tag)}`);
+									}
 								}}
 								className="px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700 text-[10px] text-stone-500 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors cursor-pointer"
 							>
