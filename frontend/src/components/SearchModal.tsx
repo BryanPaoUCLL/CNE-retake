@@ -67,7 +67,7 @@ export default function SearchModal({ isOpen, initialQuery = "", onClose }: Sear
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [isOpen, onClose]);
 
-	const navigateToArtwork = (id: number) => {
+	const navigateToArtwork = (id: string) => {
 		router.push(`/artwork/${id}`);
 		onClose();
 		setQuery("");

@@ -19,15 +19,15 @@ export default function ProfilePage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	const isOwn = user?.id === Number(id);
+	const isOwn = user?.id === String(id);
 
 	useEffect(() => {
 		async function fetchProfile() {
 			try {
 				setLoading(true);
 				const [accountResponse, artworksResponse] = await Promise.all([
-					AccountService.getById(Number(id)),
-					AccountService.getArtworks(Number(id)),
+					AccountService.getById(id),
+					AccountService.getArtworks(id),
 				]);
 				if (!accountResponse.ok || !artworksResponse.ok) {
 					throw new Error("Failed to load profile");

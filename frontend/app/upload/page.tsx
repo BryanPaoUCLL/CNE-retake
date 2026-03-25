@@ -191,7 +191,7 @@ export default function UploadPage() {
 		if (!canSubmit) return;
 		setUploading(true);
 		setError(null);
-		let createdArtworkId: number | null = null;
+		let createdArtworkId: string | null = null;
 
 		try {
 			const createRes = await ArtworkService.create({

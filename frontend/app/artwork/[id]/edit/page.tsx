@@ -58,7 +58,7 @@ export default function EditArtworkPage() {
 	const router = useRouter();
 	const { user, loading: authLoading } = useAuth();
 
-	const artworkId = Number(id);
+	const artworkId = String(id);
 
 	const [artwork, setArtwork] = useState<ArtworkDto | null>(null);
 	const [title, setTitle] = useState("");
@@ -70,7 +70,7 @@ export default function EditArtworkPage() {
 	const [saving, setSaving] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [draggedImageId, setDraggedImageId] = useState<number | null>(null);
+	const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
 
 	const images = useMemo(() => {
 		if (!artwork?.images) return [];
@@ -152,7 +152,7 @@ export default function EditArtworkPage() {
 		}
 	};
 
-	const handleSetMain = async (imageId: number) => {
+	const handleSetMain = async (imageId: string) => {
 		setBusy(true);
 		setError(null);
 		try {
@@ -168,7 +168,7 @@ export default function EditArtworkPage() {
 		}
 	};
 
-	const handleDeleteImage = async (imageId: number) => {
+	const handleDeleteImage = async (imageId: string) => {
 		setBusy(true);
 		setError(null);
 		try {
@@ -184,7 +184,7 @@ export default function EditArtworkPage() {
 		}
 	};
 
-	const handleReorderByIds = async (orderedImageIds: number[]) => {
+	const handleReorderByIds = async (orderedImageIds: string[]) => {
 		if (orderedImageIds.length !== images.length) return;
 		setBusy(true);
 		setError(null);
@@ -201,7 +201,7 @@ export default function EditArtworkPage() {
 		}
 	};
 
-	const handleDropOnImage = (targetImageId: number) => {
+	const handleDropOnImage = (targetImageId: string) => {
 		if (!draggedImageId || draggedImageId === targetImageId) {
 			setDraggedImageId(null);
 			return;

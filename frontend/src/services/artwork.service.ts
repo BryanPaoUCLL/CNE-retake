@@ -14,7 +14,7 @@ const list = (page: number = 0, size: number = 20, sort?: string) => {
 	});
 };
 
-const getById = (id: number) => {
+const getById = (id: string) => {
 	return fetch(`${API_URL}/artworks/${id}`, {
 		method: "GET",
 		credentials: "include",
@@ -50,7 +50,7 @@ const create = (data: ArtworkCreateDto) => {
 	});
 };
 
-const update = (id: number, data: ArtworkUpdateDto) => {
+const update = (id: string, data: ArtworkUpdateDto) => {
 	return fetch(`${API_URL}/artworks/${id}`, {
 		method: "PUT",
 		credentials: "include",
@@ -59,14 +59,14 @@ const update = (id: number, data: ArtworkUpdateDto) => {
 	});
 };
 
-const remove = (id: number) => {
+const remove = (id: string) => {
 	return fetch(`${API_URL}/artworks/${id}`, {
 		method: "DELETE",
 		credentials: "include",
 	});
 };
 
-const listImages = (id: number) => {
+const listImages = (id: string) => {
 	return fetch(`${API_URL}/artworks/${id}/images`, {
 		method: "GET",
 		credentials: "include",
@@ -75,7 +75,7 @@ const listImages = (id: number) => {
 	});
 };
 
-const uploadImages = (id: number, files: File[]) => {
+const uploadImages = (id: string, files: File[]) => {
 	const formData = new FormData();
 	files.forEach((file) => formData.append("files", file));
 
@@ -86,14 +86,14 @@ const uploadImages = (id: number, files: File[]) => {
 	});
 };
 
-const setMainImage = (id: number, imageId: number) => {
+const setMainImage = (id: string, imageId: string) => {
 	return fetch(`${API_URL}/artworks/${id}/images/${imageId}/main`, {
 		method: "PUT",
 		credentials: "include",
 	});
 };
 
-const reorderImages = (id: number, data: ArtworkImageReorderRequestDto) => {
+const reorderImages = (id: string, data: ArtworkImageReorderRequestDto) => {
 	return fetch(`${API_URL}/artworks/${id}/images/order`, {
 		method: "PUT",
 		credentials: "include",
@@ -102,28 +102,28 @@ const reorderImages = (id: number, data: ArtworkImageReorderRequestDto) => {
 	});
 };
 
-const deleteImage = (id: number, imageId: number) => {
+const deleteImage = (id: string, imageId: string) => {
 	return fetch(`${API_URL}/artworks/${id}/images/${imageId}`, {
 		method: "DELETE",
 		credentials: "include",
 	});
 };
 
-const like = (id: number) => {
+const like = (id: string) => {
 	return fetch(`${API_URL}/artworks/${id}/like`, {
 		method: "POST",
 		credentials: "include",
 	});
 };
 
-const unlike = (id: number) => {
+const unlike = (id: string) => {
 	return fetch(`${API_URL}/artworks/${id}/like`, {
 		method: "DELETE",
 		credentials: "include",
 	});
 };
 
-const getLikeCount = (id: number) => {
+const getLikeCount = (id: string) => {
 	return fetch(`${API_URL}/artworks/${id}/likes`, {
 		method: "GET",
 		credentials: "include",

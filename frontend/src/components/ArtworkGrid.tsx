@@ -7,7 +7,7 @@ import { ImageIcon } from "lucide-react";
 
 interface ArtworkGridProps {
 	artworks: ArtworkSummaryDto[];
-	onLike?: (id: number) => void;
+	onLike?: (id: string) => void;
 	onTagSelect?: (tag: string) => void;
 	loading?: boolean;
 }

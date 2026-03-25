@@ -8,7 +8,7 @@ import { Heart, Eye } from "lucide-react";
 
 interface ArtworkCardProps {
 	artwork: ArtworkSummaryDto;
-	onLike?: (id: number) => void;
+	onLike?: (id: string) => void;
 	onTagSelect?: (tag: string) => void;
 	priority?: boolean;
 }

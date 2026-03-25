@@ -1,13 +1,13 @@
 // ==================== Account Types ====================
 
 export interface AccountDto {
-	id: number;
+	id: string;
 	username: string;
 	email: string;
 }
 
 export interface AccountSummaryDto {
-	id: number;
+	id: string;
 	username: string;
 }
 
@@ -32,7 +32,7 @@ export interface LoginDto {
 // ==================== Artwork Types ====================
 
 export interface ArtworkDto {
-	id: number;
+	id: string;
 	title: string;
 	description?: string;
 	imageUrl?: string;
@@ -47,7 +47,7 @@ export interface ArtworkDto {
 }
 
 export interface ArtworkSummaryDto {
-	id: number;
+	id: string;
 	title: string;
 	imageUrl?: string;
 	thumbnailUrl?: string;
@@ -61,8 +61,8 @@ export interface ArtworkSummaryDto {
 }
 
 export interface ArtworkImageDto {
-	id: number;
-	artworkId: number;
+	id: string;
+	artworkId: string;
 	blobName: string;
 	originalFileName: string;
 	mimeType: string;
@@ -94,11 +94,11 @@ export interface ArtworkUpdateDto {
 }
 
 export interface ArtworkImageReorderRequestDto {
-	orderedImageIds: number[];
+	orderedImageIds: string[];
 }
 
 export interface TagSuggestionDto {
-	id: number;
+	id: string;
 	name: string;
 	description?: string;
 	usageCount?: number;

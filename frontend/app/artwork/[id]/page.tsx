@@ -22,10 +22,10 @@ export default function ArtworkPage() {
 	const [loading, setLoading] = useState(true);
 	const [purchasing, setPurchasing] = useState(false);
 	const [purchased, setPurchased] = useState(false);
-	const [activeImageId, setActiveImageId] = useState<number | null>(null);
+	const [activeImageId, setActiveImageId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const artworkId = Number(id);
+	const artworkId = String(id);
 	const isOwner = user?.id === artwork?.creator?.id;
 
 	const images = useMemo(() => {
@@ -56,6 +56,7 @@ export default function ArtworkPage() {
 				const data = await artworkRes.json();
 				setArtwork(data);
 				setActiveImageId(data.images?.find((image: ArtworkImageDto) => image.isMainImage)?.id ?? null);
+				if (data.sold) setPurchased(true);
 			} else {
 				setArtwork(null);
 			}
@@ -93,11 +94,17 @@ export default function ArtworkPage() {
 	const handlePurchase = async () => {
 		if (!user || !artwork) return;
 		setPurchasing(true);
+		setError(null);
 		try {
 			const res = await PurchaseService.purchase(artwork.id);
-			if (res.ok) setPurchased(true);
+			if (res.ok) {
+				setPurchased(true);
+			} else {
+				const body = await res.json().catch(() => null);
+				setError(body?.message || `Purchase failed (HTTP ${res.status})`);
+			}
 		} catch {
-			/* ignore */
+			setError("Network error. Please try again.");
 		} finally {
 			setPurchasing(false);
 		}

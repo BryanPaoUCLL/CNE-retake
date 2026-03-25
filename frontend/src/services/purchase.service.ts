@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const purchase = (artworkId: number) => {
+const purchase = (artworkId: string) => {
 	return fetch(`${API_URL}/purchases/${artworkId}`, {
 		method: "POST",
 		credentials: "include",

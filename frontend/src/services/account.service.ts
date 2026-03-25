@@ -10,7 +10,7 @@ const list = () => {
 	});
 };
 
-const getById = (id: number) => {
+const getById = (id: string) => {
 	return fetch(`${API_URL}/accounts/${id}`, {
 		method: "GET",
 		credentials: "include",
@@ -44,7 +44,7 @@ const updateMe = (data: AccountUpdateDto) => {
 	});
 };
 
-const getArtworks = (id: number) => {
+const getArtworks = (id: string) => {
 	return fetch(`${API_URL}/accounts/${id}/artworks`, {
 		method: "GET",
 		credentials: "include",

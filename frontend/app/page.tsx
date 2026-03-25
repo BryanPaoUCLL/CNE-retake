@@ -169,7 +169,7 @@ export default function HomePage() {
 		setSort(newSort);
 	};
 
-	const handleLike = async (id: number) => {
+	const handleLike = async (id: string) => {
 		try {
 			await ArtworkService.like(id);
 		} catch {
