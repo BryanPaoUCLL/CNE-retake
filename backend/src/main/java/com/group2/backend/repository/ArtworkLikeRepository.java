@@ -1,16 +1,16 @@
 package com.group2.backend.repository;
 
 import com.group2.backend.model.ArtworkLike;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface ArtworkLikeRepository extends JpaRepository<ArtworkLike, Long> {
-    Optional<ArtworkLike> findByAccountIdAndArtworkId(Integer accountId, Long artworkId);
+public interface ArtworkLikeRepository extends MongoRepository<ArtworkLike, String> {
+    Optional<ArtworkLike> findByAccountIdAndArtworkId(String accountId, String artworkId);
 
-    long countByArtworkId(Long artworkId);
+    long countByArtworkId(String artworkId);
 
-    void deleteByAccountIdAndArtworkId(Integer accountId, Long artworkId);
+    void deleteByAccountIdAndArtworkId(String accountId, String artworkId);
 }

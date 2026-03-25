@@ -1,24 +1,24 @@
 package com.group2.backend.repository;
 
 import com.group2.backend.model.ArtworkImage;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ArtworkImageRepository extends JpaRepository<ArtworkImage, Long> {
+public interface ArtworkImageRepository extends MongoRepository<ArtworkImage, String> {
 
-    List<ArtworkImage> findByArtworkIdOrderBySortOrderAsc(Long artworkId);
+    List<ArtworkImage> findByArtworkIdOrderBySortOrderAsc(String artworkId);
 
-    Optional<ArtworkImage> findByArtworkIdAndIsMainImageTrue(Long artworkId);
+    Optional<ArtworkImage> findByArtworkIdAndIsMainImageTrue(String artworkId);
 
-    Optional<ArtworkImage> findByArtworkIdAndId(Long artworkId, Long id);
+    Optional<ArtworkImage> findByArtworkIdAndId(String artworkId, String id);
 
-    long countByArtworkId(Long artworkId);
+    long countByArtworkId(String artworkId);
 
-    @Query("select coalesce(max(ai.sortOrder), -1) from ArtworkImage ai where ai.artwork.id = :artworkId")
-    int findMaxSortOrderByArtworkId(Long artworkId);
+    @Query(value = "{ 'artworkId': ?0 }", sort = "{ 'sortOrder': -1 }")
+    List<ArtworkImage> findMaxSortOrderByArtworkId(String artworkId);
 }
