@@ -1,4 +1,4 @@
-﻿package com.group2.backend.seed;
+package com.group2.backend.seed;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +54,6 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final BlobStorageService blobStorageService;
     private final ArtworkImageProcessingService artworkImageProcessingService;
     private final TagService tagService;
-    private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -88,26 +86,13 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void clearDatabase() {
-        deleteIfExists("artwork_tags");
-        deleteIfExists("artwork_tag_refs");
-        deleteIfExists("tag_aliases");
-        deleteIfExists("tags");
-
-        artworkLikeRepository.deleteAllInBatch();
-        purchaseRepository.deleteAllInBatch();
-        artworkImageRepository.deleteAllInBatch();
-        tokenRepository.deleteAllInBatch();
-        artworkRepository.deleteAllInBatch();
-        accountRepository.deleteAllInBatch();
+        artworkLikeRepository.deleteAll();
+        purchaseRepository.deleteAll();
+        artworkImageRepository.deleteAll();
+        tokenRepository.deleteAll();
+        artworkRepository.deleteAll();
+        accountRepository.deleteAll();
         blobStorageService.deleteAll();
-    }
-
-    private void deleteIfExists(String tableName) {
-        try {
-            jdbcTemplate.execute("DELETE FROM " + tableName);
-        } catch (Exception ex) {
-            log.debug("Skipping cleanup for table {} (not present yet): {}", tableName, ex.getMessage());
-        }
     }
 
     private Map<String, Account> seedAccounts(List<AccountSeed> accountSeeds) {
