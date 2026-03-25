@@ -4,9 +4,12 @@ import com.group2.backend.dto.AccountSummaryDto;
 import com.group2.backend.dto.ArtworkDto;
 import com.group2.backend.dto.ArtworkImageDto;
 import com.group2.backend.dto.ArtworkSummaryDto;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,75 +17,60 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Entity
-@Table(name = "artworks")
+@Document(collection = "artworks")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Artwork {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
     @NotBlank
     @Size(max = 255)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, precision = 19, scale = 2)
     @NotNull
     private BigDecimal price;
 
-    @Column(name = "artwork_year")
     private Integer year;
 
-    @Column
     @Builder.Default
     private int views = 0;
 
-    @Column(nullable = false)
     @Builder.Default
     private boolean sold = false;
 
-    @Column(name = "created_at")
+    @CreatedDate
     private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", nullable = false)
+    @DBRef(lazy = true)
     @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Account creator;
 
-    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL, orphanRemoval = true)
+    @DBRef(lazy = true)
     @Singular
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Purchase> purchases;
 
-    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL, orphanRemoval = true)
+    @DBRef(lazy = true)
     @Singular
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<ArtworkLike> likes;
 
-    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("sortOrder ASC")
+    @DBRef(lazy = true)
     @Singular
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<ArtworkImage> images;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "artwork_tag_refs",
-        joinColumns = @JoinColumn(name = "artwork_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
+    @DBRef
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
@@ -142,20 +130,10 @@ public class Artwork {
             .build();
     }
 
-    @PrePersist
-    void onCreate() {
-        if (createdAt == null) createdAt = Instant.now();
-        validateState();
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        validateState();
-    }
-
-    private void validateState() {
+    // Validation that is not handled by JPA anymore - needs to be implemented elsewhere
+    /*private void validateState() {
         if (title == null || title.trim().isEmpty()) throw new IllegalStateException("Artwork title is required");
         if (price == null) throw new IllegalStateException("Artwork price is required");
         if (creator == null) throw new IllegalStateException("Artwork requires a creator account");
-    }
+    }*/
 }

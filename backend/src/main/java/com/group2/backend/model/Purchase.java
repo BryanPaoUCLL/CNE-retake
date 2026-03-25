@@ -3,40 +3,39 @@ package com.group2.backend.model;
 import com.group2.backend.dto.AccountSummaryDto;
 import com.group2.backend.dto.ArtworkSummaryDto;
 import com.group2.backend.dto.PurchaseDto;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Entity
-@Table(name = "purchases")
+@Document(collection = "purchases")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Purchase {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(name = "purchase_price", precision = 19, scale = 2)
+
     @NotNull
     private BigDecimal purchasePrice;
 
-    @Column(name = "purchase_date")
+    @CreatedDate
     private Instant purchaseDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", nullable = false)
+    @DBRef(lazy = true)
     @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Account buyer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artwork_id", nullable = false)
+    @DBRef(lazy = true)
     @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -55,20 +54,10 @@ public class Purchase {
             .build();
     }
 
-    @PrePersist
-    void onCreate() {
-        if (purchaseDate == null) purchaseDate = Instant.now();
-        validateState();
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        validateState();
-    }
-
-    private void validateState() {
+    // Validation that is not handled by JPA anymore - needs to be implemented elsewhere
+    /*private void validateState() {
         if (purchasePrice == null) throw new IllegalStateException("Purchase price is required");
         if (buyer == null) throw new IllegalStateException("Purchase requires a buyer");
         if (artwork == null) throw new IllegalStateException("Purchase requires an artwork");
-    }
+    }*/
 }

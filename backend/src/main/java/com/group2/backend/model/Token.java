@@ -1,38 +1,37 @@
 package com.group2.backend.model;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.Instant;
 
 import com.group2.backend.exception.model.ModelException;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 
-@Entity
-@Table(name = "tokens")
+@Document(collection = "tokens")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Token {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private String id;
 
-    @Column(nullable = false, unique = true)
     @NotBlank
     @Builder.Default
     private String uid = "";
 
-    @Column(name = "created_at")
+    @CreatedDate
     private Instant createdAt;
 
-    @Column(name = "expires_at")
     private Instant expiresAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @DBRef(lazy = true)
     @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -46,20 +45,8 @@ public class Token {
         return expiresAt != null && expiresAt.isBefore(Instant.now());
     }
 
-    @PrePersist
-    void onCreate() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
-        validateState();
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        validateState();
-    }
-
-    private void validateState() {
+    // Validation that is not handled by JPA anymore - needs to be implemented elsewhere
+    /*private void validateState() {
         if (uid == null || uid.trim().isEmpty()) {
             throw new ModelException("Token UID is required");
         }
@@ -70,5 +57,5 @@ public class Token {
         if (expiresAt != null && expiresAt.isBefore(createdAt != null ? createdAt : Instant.now())) {
             throw new ModelException("Token expiration must be after creation");
         }
-    }
+    }*/
 }

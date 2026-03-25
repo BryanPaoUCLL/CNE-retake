@@ -1,19 +1,24 @@
 package com.group2.backend.model;
 
 import com.group2.backend.dto.ArtworkImageDto;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Entity
-@Table(name = "artwork_images", indexes = {
-    @Index(name = "idx_artwork_images_artwork_id", columnList = "artwork_id"),
-    @Index(name = "idx_artwork_images_artwork_sort", columnList = "artwork_id, sort_order"),
-    @Index(name = "idx_artwork_images_artwork_main", columnList = "artwork_id, is_main_image")
+@Document(collection = "artwork_images")
+@CompoundIndexes({
+        @CompoundIndex(name = "idx_artwork_images_artwork_id", def = "{'artworkId': 1}"),
+        @CompoundIndex(name = "idx_artwork_images_sort", def = "{'artworkId': 1, 'sortOrder': 1}"),
+        @CompoundIndex(name = "idx_artwork_images_main", def = "{'artworkId': 1, 'isMainImage': 1}")
 })
 @Data
 @NoArgsConstructor
@@ -22,61 +27,43 @@ import java.time.Instant;
 public class ArtworkImage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artwork_id", nullable = false)
+    @DBRef(lazy = true)
     @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Artwork artwork;
 
-    @Column(name = "blob_name", nullable = false, length = 500)
     @NotBlank
     @Size(max = 500)
     private String blobName;
 
-    @Column(name = "original_file_name", nullable = false, length = 255)
     @NotBlank
     @Size(max = 255)
     private String originalFileName;
 
-    @Column(name = "mime_type", nullable = false, length = 100)
     @NotBlank
     @Size(max = 100)
     private String mimeType;
 
-    @Column(name = "file_size_bytes", nullable = false)
     private long fileSizeBytes;
 
-    @Column(nullable = false)
     private int width;
 
-    @Column(nullable = false)
     private int height;
 
-    @Column(name = "thumbnail_blob_name", nullable = false, length = 500)
     @NotBlank
     @Size(max = 500)
     private String thumbnailBlobName;
 
-    @Column(name = "sort_order", nullable = false)
     private int sortOrder;
 
-    @Column(name = "is_main_image", nullable = false)
     @Builder.Default
     private boolean isMainImage = false;
 
-    @Column(name = "created_at", nullable = false)
+    @CreatedDate
     private Instant createdAt;
-
-    @PrePersist
-    void onCreate() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
-    }
 
     public ArtworkImageDto toDto(String imageUrl, String thumbnailUrl) {
         return ArtworkImageDto.builder()

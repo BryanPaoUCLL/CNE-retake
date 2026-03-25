@@ -1,11 +1,16 @@
 package com.group2.backend.model;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "tag_aliases", indexes = {
-    @Index(name = "idx_tag_alias_normalized", columnList = "normalized_alias", unique = true)
+@Document(collection = "tag_aliases")
+@CompoundIndexes({
+        @CompoundIndex(name = "idx_tag_alias_normalized", def = "{'normalizedAlias': 1}", unique = true),
+        @CompoundIndex(name = "idx_tag_alias_tag", def = "{'tagId': 1}")
 })
 @Data
 @NoArgsConstructor
@@ -14,17 +19,13 @@ import lombok.*;
 public class TagAlias {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false, length = 64)
     private String alias;
 
-    @Column(name = "normalized_alias", nullable = false, length = 64, unique = true)
     private String normalizedAlias;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tag_id", nullable = false)
+    @DBRef(lazy = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Tag tag;

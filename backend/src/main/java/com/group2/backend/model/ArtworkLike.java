@@ -1,52 +1,43 @@
 package com.group2.backend.model;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Entity
-@Table(name = "artwork_likes", uniqueConstraints = {@UniqueConstraint(columnNames = {"account_id", "artwork_id"})})
+@Document(collection = "artwork_likes")
+@CompoundIndex(name = "account_artwork_idx", def = "{'account': 1, 'artwork': 1}", unique = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ArtworkLike {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(name = "created_at")
+    @CreatedDate
     private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @DBRef(lazy = true)
     @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Account account;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artwork_id", nullable = false)
+    @DBRef(lazy = true)
     @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Artwork artwork;
 
-    @PrePersist
-    void onCreate() {
-        if (createdAt == null) createdAt = Instant.now();
-        validateState();
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        validateState();
-    }
-
-    private void validateState() {
+    // Validation that is not handled by JPA anymore - needs to be implemented elsewhere
+    /*private void validateState() {
         if (account == null) throw new IllegalStateException("ArtworkLike requires an account");
         if (artwork == null) throw new IllegalStateException("ArtworkLike requires an artwork");
-    }
+    }*/
 }

@@ -1,6 +1,6 @@
 package com.group2.backend.model;
 
-import jakarta.persistence.*;
+
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -10,9 +10,14 @@ import java.util.List;
 
 import com.group2.backend.dto.AccountDto;
 import com.group2.backend.dto.AccountSummaryDto;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "accounts")
+@Document(collection = "accounts")
 @Data
 @Getter
 @Setter
@@ -21,26 +26,22 @@ import com.group2.backend.dto.AccountSummaryDto;
 @Builder
 public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private String id;
 
-
-    @Column(length = 50, nullable = false)
+    @Indexed(unique = true)
     @NotBlank
     @Size(max = 50)
     private String username;
 
-    @Column(length = 100, nullable = false)
     @NotBlank
     @Email
     @Size(max = 100)
     private String email;
 
-    @Column(nullable = false)
     @NotBlank
     private String password;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @DBRef(lazy = true)
     @Singular
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -50,25 +51,25 @@ public class Account {
 
 
 
-    @Column(name = "created_at")
+    @CreatedDate
     private Instant createdAt;
 
-    @Column(name = "updated_at")
+    @LastModifiedDate
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    @DBRef(lazy = true)
     @Singular
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Artwork> artworks;
 
-    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @DBRef(lazy = true)
     @Singular
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Purchase> purchases;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @DBRef(lazy = true)
     @Singular
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -94,26 +95,5 @@ public class Account {
 			.username(this.username)
 			.build();
 	}
-
-    @PrePersist
-    void onCreate() {
-        validateState();
-        Instant now = Instant.now();
-        if (createdAt == null) {
-            createdAt = now;
-        }
-        if (updatedAt == null) {
-            updatedAt = now;
-        }
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        validateState();
-        updatedAt = Instant.now();
-    }
-
-    private void validateState() {
-    }
 
 }
