@@ -126,7 +126,7 @@ public class AuthService {
             throw new AuthException("Account not found for token");
         }
 
-        Integer accountId = token.getAccount().getId();
+        String accountId = token.getAccount().getId();
         return accountRepository.findById(accountId)
             .orElseThrow(() -> new AuthException("Account not found"));
     }
@@ -184,21 +184,12 @@ public class AuthService {
     public boolean changePassword(String newPassword) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Integer accountId = null;
-        if (principal instanceof Integer) {
-            accountId = (Integer) principal;
-        } else if (principal instanceof String) {
-            try {
-                accountId = Integer.valueOf((String) principal);
-            } catch (NumberFormatException ex) {
-                throw new AuthException("Invalid principal type");
-            }
-        } else {
+        if (!(principal instanceof String accountId)) {
             throw new AuthException("Unsupported principal type");
         }
 
         Account caller = accountRepository.findById(accountId)
-            .orElseThrow(() -> new AuthException("Account not found"));
+                .orElseThrow(() -> new AuthException("Account not found"));
 
         caller.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(caller);

@@ -35,7 +35,7 @@ public class ArtworkImageService {
     private final ArtworkImageUploadProperties uploadProperties;
 
     @Transactional(readOnly = true)
-    public List<ArtworkImageDto> listImages(Long artworkId) {
+    public List<ArtworkImageDto> listImages(String artworkId) {
         ensureArtworkExists(artworkId);
         return artworkImageRepository.findByArtworkIdOrderBySortOrderAsc(artworkId)
             .stream()
@@ -43,7 +43,7 @@ public class ArtworkImageService {
             .toList();
     }
 
-    public List<ArtworkImageDto> uploadImages(Long artworkId, List<MultipartFile> files) {
+    public List<ArtworkImageDto> uploadImages(String artworkId, List<MultipartFile> files) {
         Artwork artwork = findArtwork(artworkId);
         verifyOwner(artwork);
 
@@ -64,7 +64,11 @@ public class ArtworkImageService {
         List<String> uploadedBlobNames = new ArrayList<>();
         List<ArtworkImage> toPersist = new ArrayList<>();
         boolean hasMainImage = artworkImageRepository.findByArtworkIdAndIsMainImageTrue(artworkId).isPresent();
-        int sortOrder = artworkImageRepository.findMaxSortOrderByArtworkId(artworkId) + 1;
+        int sortOrder = artworkImageRepository.findMaxSortOrderByArtworkId(artworkId)
+                .stream()
+                .findFirst()
+                .map(img -> img.getSortOrder() + 1)
+                .orElse(0);
 
         try {
             for (MultipartFile file : files) {
@@ -120,7 +124,7 @@ public class ArtworkImageService {
         }
     }
 
-    public ArtworkImageDto setMainImage(Long artworkId, Long imageId) {
+    public ArtworkImageDto setMainImage(String artworkId, String imageId) {
         Artwork artwork = findArtwork(artworkId);
         verifyOwner(artwork);
 
@@ -139,7 +143,7 @@ public class ArtworkImageService {
         return toDto(artworkImageRepository.save(target));
     }
 
-    public List<ArtworkImageDto> reorderImages(Long artworkId, ArtworkImageReorderRequestDto body) {
+    public List<ArtworkImageDto> reorderImages(String artworkId, ArtworkImageReorderRequestDto body) {
         Artwork artwork = findArtwork(artworkId);
         verifyOwner(artwork);
 
@@ -152,15 +156,15 @@ public class ArtworkImageService {
             throw new ServiceException("Reorder payload must include every artwork image exactly once", HttpStatus.BAD_REQUEST);
         }
 
-        Set<Long> uniqueIds = new HashSet<>(body.getOrderedImageIds());
+        Set<String> uniqueIds = new HashSet<>(body.getOrderedImageIds());
         if (uniqueIds.size() != body.getOrderedImageIds().size()) {
             throw new ServiceException("orderedImageIds contains duplicates", HttpStatus.BAD_REQUEST);
         }
 
-        Map<Long, ArtworkImage> byId = new HashMap<>();
+        Map<String, ArtworkImage> byId = new HashMap<>();
         images.forEach(img -> byId.put(img.getId(), img));
 
-        for (Long id : body.getOrderedImageIds()) {
+        for (String id : body.getOrderedImageIds()) {
             if (!byId.containsKey(id)) {
                 throw new ServiceException("orderedImageIds contains unknown image id " + id, HttpStatus.BAD_REQUEST);
             }
@@ -178,7 +182,7 @@ public class ArtworkImageService {
             .toList();
     }
 
-    public void deleteImage(Long artworkId, Long imageId) {
+    public void deleteImage(String artworkId, String imageId) {
         Artwork artwork = findArtwork(artworkId);
         verifyOwner(artwork);
 
@@ -203,7 +207,7 @@ public class ArtworkImageService {
         artworkImageRepository.saveAll(remaining);
     }
 
-    public void deleteAllImagesForArtwork(Long artworkId) {
+    public void deleteAllImagesForArtwork(String artworkId) {
         List<ArtworkImage> images = artworkImageRepository.findByArtworkIdOrderBySortOrderAsc(artworkId);
         for (ArtworkImage image : images) {
             blobStorageService.deleteIfExists(image.getBlobName());
@@ -274,12 +278,12 @@ public class ArtworkImageService {
         }
     }
 
-    private Artwork findArtwork(Long artworkId) {
+    private Artwork findArtwork(String artworkId) {
         return artworkRepository.findById(artworkId)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
     }
 
-    private void ensureArtworkExists(Long artworkId) {
+    private void ensureArtworkExists(String artworkId) {
         if (!artworkRepository.existsById(artworkId)) {
             throw new ServiceException("Artwork not found", HttpStatus.NOT_FOUND);
         }

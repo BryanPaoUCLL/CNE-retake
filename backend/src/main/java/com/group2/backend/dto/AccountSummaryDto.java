@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AccountSummaryDto {
-    private Integer id;
+    private String id;
     private String username;
 }

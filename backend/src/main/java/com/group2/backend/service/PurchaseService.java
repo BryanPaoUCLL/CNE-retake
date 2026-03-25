@@ -28,7 +28,7 @@ public class PurchaseService {
     private final AuthService authService;
     private final BlobStorageService blobStorageService;
 
-    public PurchaseDto createPurchase(Long artworkId) {
+    public PurchaseDto createPurchase(String artworkId) {
         Artwork artwork = artworkRepository.findById(artworkId)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
         Account buyer = authService.getAccountFromRequest();

@@ -20,7 +20,7 @@ public class ArtworkLikeService {
     private final ArtworkLikeRepository artworkLikeRepository;
     private final AuthService authService;
 
-    public void like(Long artworkId) {
+    public void like(String artworkId) {
         Artwork artwork = artworkRepository.findById(artworkId)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
         Account account = authService.getAccountFromRequest();
@@ -37,7 +37,7 @@ public class ArtworkLikeService {
         artworkLikeRepository.save(like);
     }
 
-    public void unlike(Long artworkId) {
+    public void unlike(String artworkId) {
         artworkRepository.findById(artworkId)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
         Account account = authService.getAccountFromRequest();
@@ -45,7 +45,7 @@ public class ArtworkLikeService {
     }
 
     @Transactional(readOnly = true)
-    public long count(Long artworkId) {
+    public long count(String artworkId) {
         artworkRepository.findById(artworkId)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
         return artworkLikeRepository.countByArtworkId(artworkId);

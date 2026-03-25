@@ -13,7 +13,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class PurchaseDto {
-    private Long id;
+    private String id;
     private BigDecimal purchasePrice;
     private Instant purchaseDate;
     private ArtworkSummaryDto artwork;

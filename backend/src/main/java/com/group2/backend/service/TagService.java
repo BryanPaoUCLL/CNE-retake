@@ -27,7 +27,7 @@ public class TagService {
     public List<Tag> resolveCanonicalTags(List<String> inputTags) {
         if (inputTags == null || inputTags.isEmpty()) return List.of();
 
-        LinkedHashMap<Long, Tag> canonicalTags = new LinkedHashMap<>();
+        LinkedHashMap<String, Tag> canonicalTags = new LinkedHashMap<>();
         List<Tag> tagsToSave = new ArrayList<>();
 
         for (String raw : inputTags) {
@@ -60,7 +60,7 @@ public class TagService {
 
         List<TagAlias> aliasMatches = trimmed.isBlank() ? List.of() : tagAliasRepository.findTop20ByAliasContainingIgnoreCase(trimmed);
 
-        LinkedHashMap<Long, Tag> unique = new LinkedHashMap<>();
+        LinkedHashMap<String, Tag> unique = new LinkedHashMap<>();
         for (Tag tag : directMatches) {
             unique.put(tag.getId(), tag);
         }
@@ -124,7 +124,11 @@ public class TagService {
             return artworkRepository.findByTagId(fuzzy.get().getId());
         }
 
-        return artworkRepository.findByTagNameContainingIgnoreCase(rawTagQuery.trim());
+        List<Tag> matchingTags = tagRepository.findByNameContainingIgnoreCase(rawTagQuery.trim());
+        return matchingTags.stream()
+                .flatMap(tag -> artworkRepository.findByTagId(tag.getId()).stream())
+                .distinct()
+                .toList();
     }
 
     private Tag resolveTag(String raw, String normalized) {

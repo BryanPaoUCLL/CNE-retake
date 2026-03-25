@@ -32,7 +32,7 @@ public class PurchaseController {
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<PurchaseDto> purchase(@PathVariable Long artworkId) {
+    public ResponseEntity<PurchaseDto> purchase(@PathVariable String artworkId) {
         PurchaseDto created = purchaseService.createPurchase(artworkId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

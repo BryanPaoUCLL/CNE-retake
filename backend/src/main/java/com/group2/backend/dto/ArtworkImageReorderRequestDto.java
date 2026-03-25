@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ArtworkImageReorderRequestDto {
-    private List<Long> orderedImageIds;
+    private List<String> orderedImageIds;
 }

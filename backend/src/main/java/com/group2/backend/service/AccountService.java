@@ -33,7 +33,7 @@ public class AccountService {
                 .collect(Collectors.toList());
     }
 
-    public AccountDto getAccount(Integer id) {
+    public AccountDto getAccount(String id) {
         Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new ServiceException("Account not found", HttpStatus.NOT_FOUND));
         return account.toDto();

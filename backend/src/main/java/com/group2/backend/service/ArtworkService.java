@@ -44,7 +44,7 @@ public class ArtworkService {
         return artworkRepository.findAll(pageable).map(this::toSummaryDto);
     }
 
-    public ArtworkDto getArtwork(Long id) {
+    public ArtworkDto getArtwork(String id) {
         Artwork artwork = artworkRepository.findById(id)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
 
@@ -70,7 +70,7 @@ public class ArtworkService {
         return toDto(saved);
     }
 
-    public ArtworkDto updateArtwork(Long id, ArtworkUpdateDto body) {
+    public ArtworkDto updateArtwork(String id, ArtworkUpdateDto body) {
         Artwork artwork = artworkRepository.findById(id)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
         Account caller = authService.getAccountFromRequest();
@@ -100,7 +100,7 @@ public class ArtworkService {
         return toDto(saved);
     }
 
-    public void deleteArtwork(Long id) {
+    public void deleteArtwork(String id) {
         Artwork artwork = artworkRepository.findById(id)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
         Account caller = authService.getAccountFromRequest();
@@ -154,7 +154,7 @@ public class ArtworkService {
             .toList();
     }
 
-    public List<ArtworkSummaryDto> listByAccount(Integer accountId) {
+    public List<ArtworkSummaryDto> listByAccount(String accountId) {
         return artworkRepository.findByCreatorId(accountId)
             .stream()
             .map(this::toSummaryDto)

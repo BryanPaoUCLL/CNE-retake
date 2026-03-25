@@ -64,7 +64,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<ArtworkDto> getById(@PathVariable Long id) {
+    public ResponseEntity<ArtworkDto> getById(@PathVariable String id) {
         return ResponseEntity.ok(artworkService.getArtwork(id));
     }
 
@@ -89,7 +89,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<ArtworkDto> update(@PathVariable Long id, @RequestBody ArtworkUpdateDto body) {
+    public ResponseEntity<ArtworkDto> update(@PathVariable String id, @RequestBody ArtworkUpdateDto body) {
         return ResponseEntity.ok(artworkService.updateArtwork(id, body));
     }
 
@@ -99,7 +99,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<List<ArtworkImageDto>> listImages(@PathVariable Long id) {
+    public ResponseEntity<List<ArtworkImageDto>> listImages(@PathVariable String id) {
         return ResponseEntity.ok(artworkImageService.listImages(id));
     }
 
@@ -113,7 +113,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "404", description = "Not found"),
         @ApiResponse(responseCode = "413", description = "Payload too large")
     })
-    public ResponseEntity<List<ArtworkImageDto>> uploadImages(@PathVariable Long id, @RequestPart("files") List<MultipartFile> files) {
+    public ResponseEntity<List<ArtworkImageDto>> uploadImages(@PathVariable String id, @RequestPart("files") List<MultipartFile> files) {
         return ResponseEntity.status(HttpStatus.CREATED).body(artworkImageService.uploadImages(id, files));
     }
 
@@ -125,7 +125,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<ArtworkImageDto> setMainImage(@PathVariable Long id, @PathVariable Long imageId) {
+    public ResponseEntity<ArtworkImageDto> setMainImage(@PathVariable String id, @PathVariable String imageId) {
         return ResponseEntity.ok(artworkImageService.setMainImage(id, imageId));
     }
 
@@ -138,7 +138,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<List<ArtworkImageDto>> reorderImages(@PathVariable Long id, @RequestBody ArtworkImageReorderRequestDto body) {
+    public ResponseEntity<List<ArtworkImageDto>> reorderImages(@PathVariable String id, @RequestBody ArtworkImageReorderRequestDto body) {
         return ResponseEntity.ok(artworkImageService.reorderImages(id, body));
     }
 
@@ -150,7 +150,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<Void> deleteImage(@PathVariable Long id, @PathVariable Long imageId) {
+    public ResponseEntity<Void> deleteImage(@PathVariable String id, @PathVariable String imageId) {
         artworkImageService.deleteImage(id, imageId);
         return ResponseEntity.noContent().build();
     }
@@ -163,7 +163,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         artworkService.deleteArtwork(id);
         return ResponseEntity.noContent().build();
     }
@@ -193,7 +193,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<Void> like(@PathVariable Long id) {
+    public ResponseEntity<Void> like(@PathVariable String id) {
         artworkLikeService.like(id);
         return ResponseEntity.ok().build();
     }
@@ -205,7 +205,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<Void> unlike(@PathVariable Long id) {
+    public ResponseEntity<Void> unlike(@PathVariable String id) {
         artworkLikeService.unlike(id);
         return ResponseEntity.noContent().build();
     }
@@ -216,7 +216,7 @@ public class ArtworkController {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<LikeCountDto> likeCount(@PathVariable Long id) {
+    public ResponseEntity<LikeCountDto> likeCount(@PathVariable String id) {
         long count = artworkLikeService.count(id);
         return ResponseEntity.ok(LikeCountDto.builder().count(count).build());
     }

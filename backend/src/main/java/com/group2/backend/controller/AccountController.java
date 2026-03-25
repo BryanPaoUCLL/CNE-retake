@@ -45,7 +45,7 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<AccountDto> getById(@PathVariable Integer id) {
+    public ResponseEntity<AccountDto> getById(@PathVariable String id) {
         return ResponseEntity.ok(accountService.getAccount(id));
     }
 
@@ -87,7 +87,7 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<List<ArtworkSummaryDto>> listAccountArtworks(@PathVariable Integer id) {
+    public ResponseEntity<List<ArtworkSummaryDto>> listAccountArtworks(@PathVariable String id) {
         accountService.getAccount(id); // ensure existence or 404
         return ResponseEntity.ok(artworkService.listByAccount(id));
     }

@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ArtworkSummaryDto {
-    private Long id;
+    private String id;
     private String title;
     private String imageUrl;
     private String thumbnailUrl;

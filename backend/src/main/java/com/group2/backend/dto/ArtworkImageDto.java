@@ -12,8 +12,8 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class ArtworkImageDto {
-    private Long id;
-    private Long artworkId;
+    private String id;
+    private String artworkId;
     private String blobName;
     private String originalFileName;
     private String mimeType;
