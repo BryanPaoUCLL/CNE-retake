@@ -2,7 +2,6 @@ spring:
     application:
         name: cloud-native-engineering-project-group2-backend
 
-
     jpa:
         defer-datasource-initialization: false
         hibernate:

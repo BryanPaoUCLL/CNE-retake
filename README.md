@@ -98,19 +98,22 @@ Make sure the following are installed before setting up the project:
 
 ## Database Setup
 
-The application uses **PostgreSQL** as its relational database. Hibernate is configured with `ddl-auto: update`, which means it will automatically create and update tables on first run — **but the database itself must be created manually first.**
+The application uses **MongoDB** and we will use docker to run it locally
 
 ### Steps
 
-1. Open **pgAdmin** (or any PostgreSQL client such as DBeaver or `psql`).
-2. Connect to your local PostgreSQL server (default host: `localhost`, port: `5432`).
-3. Create a new database:
+1. Open a terminal in the project root folder
+2. Run the following to install and run the docker image
 
-```sql
-CREATE DATABASE cloudnativeengineeringproject;
+```shell
+docker-compose -f docker-compose.yml up -d --build --remove-orphans
 ```
 
-4. Make sure the user you configured (default: `postgres`) has access to that database.
+3. Run the following to stop the container
+
+```
+docker-compose down
+```
 
 > **Note:** The exact database name, username, password, host and port are configured via environment variables. See the [Backend Setup](#backend-setup) section below.
 
@@ -125,24 +128,19 @@ The backend uses **dotenv-java** to load a `.env` file from the `backend/` direc
 Create or edit `backend/.env`:
 
 ```dotenv
-# Server
 SERVER_PORT=8080
 
-# Database
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=27017
 DB_NAME=cloudnativeengineeringproject
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
+DB_USERNAME=mongo
+DB_PASSWORD=mongo
 
-# CORS — comma-separated list of allowed frontend origins
 FRONTEND_URLS=http://localhost:3000,http://localhost:3001
 
-# Spring profile: use "dev" locally (enables database seeder)
 SPRING_PROFILES_ACTIVE=dev
-```
 
-> **Important:** The `.env` file is loaded via `DotenvConfig`, which is an `ApplicationContextInitializer`. This means it is loaded very early in the Spring lifecycle — before `@Value` injection or `application.yaml` is resolved. This is why the backend **must be started through the Spring Boot Dashboard in VS Code** (or with the Maven wrapper), so the initializer is properly registered.
+```
 
 ### 2. `application.yaml` overview
 
@@ -219,10 +217,13 @@ Using the Spring Boot Dashboard ensures the `.env` file is picked up correctly v
 > mvnw.cmd spring-boot:run
 > ```
 
+> Make sure the docker container is running before you run the backend
+
 ### Frontend
 
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 
