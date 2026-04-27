@@ -223,7 +223,6 @@ Using the Spring Boot Dashboard ensures the `.env` file is picked up correctly v
 
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
 
