@@ -10,9 +10,7 @@ spring:
         open-in-view: false
 
     mongodb:
-        uri: mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}
-        username: ${DB_USERNAME}
-        password: ${DB_PASSWORD}
+        uri: mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin
     servlet:
         multipart:
             max-file-size: ${ARTWORK_IMAGES_MULTIPART_MAX_FILE_SIZE:5MB}
