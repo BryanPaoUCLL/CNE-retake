@@ -9,7 +9,7 @@ Repository for CNE group 2
 Galerique is a luxury digital art gallery platform. Artists can upload and sell digital artworks; collectors can browse, like and purchase them. The project consists of a Spring Boot REST API backend and a Next.js frontend.
 
 ---
-
+ 
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
