@@ -8,8 +8,12 @@ spring:
             ddl-auto: update
         open-in-view: false
 
+    data:
+        mongodb:
+            auto-index-creation: true
+
     mongodb:
-        uri: mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin
+        uri: ${MONGODB_URI}
     servlet:
         multipart:
             max-file-size: ${ARTWORK_IMAGES_MULTIPART_MAX_FILE_SIZE:5MB}
@@ -47,8 +51,7 @@ spring:
     config:
         activate:
             on-profile: prod
-# TODO
 app:
     cookie:
-        domain: .somthing.be
+        domain: ${COOKIE_DOMAIN:}
         same-site: Strict

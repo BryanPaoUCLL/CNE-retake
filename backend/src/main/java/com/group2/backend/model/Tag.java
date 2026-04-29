@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,7 +16,8 @@ import java.util.List;
 
 @Document(collection = "tags")
 @CompoundIndexes({
-        @CompoundIndex(name = "idx_tag_normalized_name", def = "{'normalizedName': 1}", unique = true)
+        @CompoundIndex(name = "idx_tag_normalized_name", def = "{'normalizedName': 1}", unique = true),
+        @CompoundIndex(name = "idx_tag_usage_name", def = "{'usageCount': -1, 'name': 1}")
 })
 @Data
 @NoArgsConstructor
@@ -26,12 +28,14 @@ public class Tag {
     @Id
     private String id;
 
+    @Indexed
     private String name;
 
     private String normalizedName;
 
     private String description;
 
+    @Indexed
     @Builder.Default
     private int usageCount = 0;
 
