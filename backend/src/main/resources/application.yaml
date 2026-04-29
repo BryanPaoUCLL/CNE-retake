@@ -8,8 +8,12 @@ spring:
             ddl-auto: update
         open-in-view: false
 
+    data:
+        mongodb:
+            auto-index-creation: true
+
     mongodb:
-        uri: mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin
+        uri: ${MONGODB_URI}
     servlet:
         multipart:
             max-file-size: ${ARTWORK_IMAGES_MULTIPART_MAX_FILE_SIZE:5MB}
@@ -32,9 +36,9 @@ app:
         connection-string: ${AZURITE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;}
         container-name: ${AZURITE_BLOB_CONTAINER:artworks}
     artwork-images:
-        max-images-per-artwork: ${ARTWORK_IMAGES_MAX_PER_ARTWORK:10}
+        max-images-per-artwork: ${ARTWORK_IMAGES_MAX_PER_ARTWORK:1}
         max-file-size-bytes: ${ARTWORK_IMAGES_MAX_FILE_SIZE_BYTES:5242880}
-        max-total-upload-size-bytes: ${ARTWORK_IMAGES_MAX_TOTAL_UPLOAD_SIZE_BYTES:20971520}
+        max-total-upload-size-bytes: ${ARTWORK_IMAGES_MAX_TOTAL_UPLOAD_SIZE_BYTES:5242880}
         thumbnail-max-width: ${ARTWORK_IMAGES_THUMBNAIL_MAX_WIDTH:300}
 
 ---
@@ -49,5 +53,5 @@ spring:
             on-profile: prod
 app:
     cookie:
-        domain: .somthing.be
+        domain: ${COOKIE_DOMAIN:}
         same-site: Strict

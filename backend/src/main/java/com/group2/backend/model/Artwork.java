@@ -8,6 +8,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -37,12 +38,14 @@ public class Artwork {
 
     private Integer year;
 
+    @Indexed
     @Builder.Default
     private int views = 0;
 
     @Builder.Default
     private boolean sold = false;
 
+    @Indexed
     @CreatedDate
     private Instant createdAt;
 
