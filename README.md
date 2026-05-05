@@ -9,7 +9,7 @@ Repository for CNE group 2
 Galerique is a luxury digital art gallery platform. Artists can upload and sell digital artworks; collectors can browse, like and purchase them. The project consists of a Spring Boot REST API backend and a Next.js frontend.
 
 ---
- 
+
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
@@ -96,39 +96,15 @@ Make sure the following are installed before setting up the project:
 
 ---
 
-## Database Setup
+## Running the application
 
-The application uses **MongoDB** and we will use docker to run it locally
+### Back-end setup
 
-### Steps
+1. Create a .env in the `backend/` directory
 
-1. Open a terminal in the project root folder
-2. Run the following to install and run the docker image
-
-```shell
-docker-compose -f docker-compose.yml up -d --build --remove-orphans
-```
-
-3. Run the following to stop the container
-
-```
-docker-compose down
-```
-
-> **Note:** The exact database name, username, password, host and port are configured via environment variables. See the [Backend Setup](#backend-setup) section below.
-
----
-
-## Backend Setup
-
-### 1. Configure the `.env` file
-
-The backend uses **dotenv-java** to load a `.env` file from the `backend/` directory. This file is read at startup and injects values into the Spring environment before `application.yaml` is processed.
-
-Create or edit `backend/.env`:
-
-```dotenv
+```sh
 SERVER_PORT=8080
+
 
 DB_HOST=localhost
 DB_PORT=27017
@@ -140,49 +116,73 @@ FRONTEND_URLS=http://localhost:3000,http://localhost:3001
 
 SPRING_PROFILES_ACTIVE=dev
 
+AZURITE_CONNECTION_STRING=INSERTSTRINGHERE
 ```
 
-### 2. `application.yaml` overview
-
-The `application.yaml` in `backend/src/main/resources/` references the env variables above:
+2. Create an application.yaml in `backend/src/main/resources/`
 
 ```yaml
 spring:
-    datasource:
-        url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-        username: ${DB_USERNAME}
-        password: ${DB_PASSWORD}
+    application:
+        name: cloud-native-engineering-project-group2-backend
+
     jpa:
         hibernate:
-            ddl-auto: update # auto-creates/updates tables
+            ddl-auto: update
+
+    mongodb:
+        uri: mongodb://${DB_USERNAME:admin}:${DB_PASSWORD:password}@${DB_HOST:localhost}:${DB_PORT:27017}/${DB_NAME:artworks}?authSource=admin
+
+    servlet:
+        multipart:
+            max-file-size: 5MB
+            max-request-size: 20MB
 
 server:
-    port: ${SERVER_PORT:8080}
-
-app:
-    cors:
-        allowed-origins: ${FRONTEND_URLS}
+    port: 8080
 
 springdoc:
+    api-docs:
+        path: /v3/api-docs
     swagger-ui:
         path: /swagger-ui.html
         enabled: true
+
+app:
+    cors:
+        allowed-origins: http://localhost:3000
+    blob:
+        connection-string: ${AZURITE_CONNECTION_STRING:}
+        container-name: artworks
+    artwork-images:
+        max-images-per-artwork: 10
+        max-file-size-bytes: 5242880
+        max-total-upload-size-bytes: 20971520
+        thumbnail-max-width: 300
 ```
 
 ---
 
-## Frontend Setup
+The application uses **MongoDB** and we will use docker to run it locally
 
-### 1. Install dependencies
+1. Open a terminal in the project root folder
+2. Run the following to install and run the docker image
 
-```bash
-cd frontend
-npm install
+```sh
+docker-compose up -d
 ```
 
-### 2. Configure environment variables
+3. Run the following to stop the container
 
-Create a `.env.local` file in the `frontend/` directory:
+```sh
+docker-compose down
+```
+
+---
+
+### Front-end setup
+
+1.  Create a `.env.local` file in the `frontend/` directory:
 
 ```dotenv
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
@@ -190,20 +190,20 @@ NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
 
 This variable is used by all frontend service files (e.g. `auth.service.ts`, `artwork.service.ts`) to construct API call URLs.
 
+2. Download the dependencies
+
+```bash
+cd frontend
+npm install
+```
+
 ---
 
-## Running the Application
+wrapper, but make sure you are in the `backend/` directory so dotenv finds the `.env` file:
 
-### Backend — via VS Code Spring Boot Dashboard (recommended)
+### Starting the back-end
 
-Using the Spring Boot Dashboard ensures the `.env` file is picked up correctly via the `DotenvConfig` initializer.
-
-1. Open VS Code in the workspace root.
-2. Open the **Spring Boot Dashboard** (click the Spring icon in the Activity Bar, or press `Ctrl+Shift+P` → _Spring Boot Dashboard: Focus_).
-3. Expand the `backend` project and click the **Run** (▷) button next to `CloudNativeEngineeringProjectGroup2BackendApplication`.
-4. The backend starts on `http://localhost:8080`.
-
-> You can also run it from the terminal using the Maven wrapper, but make sure you are in the `backend/` directory so dotenv finds the `.env` file:
+> ### Make sure the docker container is running before you run the backend
 >
 > ```bash
 > cd backend
@@ -217,16 +217,14 @@ Using the Spring Boot Dashboard ensures the `.env` file is picked up correctly v
 > mvnw.cmd spring-boot:run
 > ```
 
-> Make sure the docker container is running before you run the backend
+### Starting the front-end
 
-### Frontend
-
-```bash
-cd frontend
-npm run dev
-```
-
-The frontend starts on `http://localhost:3000`.
+> ```bash
+> cd frontend
+> npm run dev
+> ```
+>
+> The frontend starts on `http://localhost:3000`.
 
 ---
 
