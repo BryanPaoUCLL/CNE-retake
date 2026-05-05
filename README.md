@@ -220,9 +220,9 @@ cd backend
 
 ```sh
 cd backend
-$env:SPRING_PROFILES_ACTIVE = "prod"
-$env:MONGODB_URI = "string"
-$env:AZURITE_CONNECTION_STRING = "otherstring"
+$env:SPRING_PROFILES_ACTIVE = 'prod'
+$env:MONGODB_URI = 'string'
+$env:AZURITE_CONNECTION_STRING = 'otherstring'
 ./mvnw spring-boot:run
 ```
 
