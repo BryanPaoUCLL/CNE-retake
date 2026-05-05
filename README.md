@@ -114,6 +114,8 @@ SPRING_PROFILES_ACTIVE=dev
 AZURITE_CONNECTION_STRING=INSERTSTRINGHERE
 ```
 
+> ### Replace `AZURITE_CONNECTION_STRING` with your connection string
+
 2. Create an application.yaml in `backend/src/main/resources/`
 
 ```yaml
@@ -158,7 +160,7 @@ app:
 
 ---
 
-The application uses **MongoDB** and we will use docker to run it locally
+The application uses **MongoDB** and we will use docker to run it locally so **make sure docker is running**.
 
 1. Open a terminal in the project root folder
 2. Run the following to install and run the docker image
