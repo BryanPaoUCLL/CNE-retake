@@ -15,16 +15,12 @@ Galerique is a luxury digital art gallery platform. Artists can upload and sell 
 1. [Project Overview](#project-overview)
 2. [Tech Stack](#tech-stack)
 3. [Architecture](#architecture)
-4. [Prerequisites](#prerequisites)
-5. [Database Setup](#database-setup)
-6. [Backend Setup](#backend-setup)
-7. [Frontend Setup](#frontend-setup)
-8. [Running the Application](#running-the-application)
-9. [Swagger / API Documentation](#swagger--api-documentation)
-10. [Authentication](#authentication)
-11. [Frontend Styling](#frontend-styling)
-12. [Project Structure](#project-structure)
-13. [Seed Data](#seed-data)
+4. [Running the Application](#running-the-application)
+5. [Swagger / API Documentation](#swagger--api-documentation)
+6. [Authentication](#authentication)
+7. [Frontend Styling](#frontend-styling)
+8. [Project Structure](#project-structure)
+9. [Seed Data](#seed-data)
 
 ---
 
@@ -82,7 +78,11 @@ Browser
 
 ---
 
-## Prerequisites
+---
+
+## Running the application
+
+### Prerequisites
 
 Make sure the following are installed before setting up the project:
 
@@ -92,10 +92,6 @@ Make sure the following are installed before setting up the project:
 - **pgAdmin** (optional, recommended GUI) — [Download](https://www.pgadmin.org/)
 - **VS Code** with the [Spring Boot Dashboard extension](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-spring-boot-dashboard)
 - **Docker Desktop** — [Download](https://docs.docker.com/desktop/setup/install/windows-install/)
-
----
-
-## Running the application
 
 ### Back-end setup
 
