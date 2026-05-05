@@ -34,7 +34,7 @@ Galerique is a luxury digital art gallery platform. Artists can upload and sell 
 | -------- | ----------------------- | -------------- |
 | Backend  | Spring Boot 4 / Java 21 | `8080`         |
 | Frontend | Next.js 16 / React 19   | `3000`         |
-| Database | PostgreSQL (local)      | `5432`         |
+| Database | MongoDB (local)         | `5432`         |
 
 ---
 
@@ -49,7 +49,6 @@ Galerique is a luxury digital art gallery platform. Artists can upload and sell 
 | Spring Data JPA / Hibernate | ORM & database access                             |
 | Spring Security             | Stateless cookie-based authentication             |
 | Spring Validation           | Bean validation (`@NotBlank`, `@Email`, etc.)     |
-| PostgreSQL Driver           | JDBC connection to PostgreSQL                     |
 | Springdoc OpenAPI 2.8.5     | Auto-generated Swagger UI                         |
 | Lombok                      | Boilerplate reduction (`@Data`, `@Builder`, etc.) |
 | dotenv-java 3.0.2           | Loads `.env` file into Spring environment         |
@@ -74,7 +73,7 @@ Browser
   └── Next.js Frontend (localhost:3000)
         └── fetch() with credentials: "include"
               └── Spring Boot Backend (localhost:8080)
-                    └── PostgreSQL (localhost:5432)
+                    └── MongoDB (localhost:27017)
 ```
 
 - The frontend communicates with the backend via a REST API.
@@ -90,9 +89,9 @@ Make sure the following are installed before setting up the project:
 - **Java 21** (JDK) — [Download](https://adoptium.net/)
 - **Maven** (or use the included `mvnw` wrapper)
 - **Node.js 20+** and **npm** — [Download](https://nodejs.org/)
-- **PostgreSQL** — [Download](https://www.postgresql.org/download/)
 - **pgAdmin** (optional, recommended GUI) — [Download](https://www.pgadmin.org/)
 - **VS Code** with the [Spring Boot Dashboard extension](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-spring-boot-dashboard)
+- **Docker Desktop** — [Download](https://docs.docker.com/desktop/setup/install/windows-install/)
 
 ---
 
