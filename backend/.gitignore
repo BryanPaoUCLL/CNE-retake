@@ -36,3 +36,6 @@ build/
 downloaded_artworks/
 seed_assets/artworks/
 src/main/resources/seed/*.local.json
+
+.env
+backend/src/main/resources/application.yaml
