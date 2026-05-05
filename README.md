@@ -2,6 +2,8 @@
 
 Repository for CNE group 2
 
+note: Starting Point commit got shuffled due to branch merges, actual starting point is "Merge branch 'main' into cloud-migration"
+
 ---
 
 # Galerique — Cloud Native Engineering Project (Group 2)
@@ -95,28 +97,8 @@ Make sure the following are installed before setting up the project:
 
 ### Back-end setup
 
-1. Create a .env in the `backend/` directory
 
-```sh
-SERVER_PORT=8080
-
-
-DB_HOST=localhost
-DB_PORT=27017
-DB_NAME=cloudnativeengineeringproject
-DB_USERNAME=mongo
-DB_PASSWORD=mongo
-
-FRONTEND_URLS=http://localhost:3000,http://localhost:3001
-
-SPRING_PROFILES_ACTIVE=dev
-
-AZURITE_CONNECTION_STRING=INSERTSTRINGHERE
-```
-
-> ### Replace `AZURITE_CONNECTION_STRING` with your connection string
-
-2. Create an application.yaml in `backend/src/main/resources/`
+1. Create an application.yaml in `backend/src/main/resources/`
 
 ```yaml
 spring:
@@ -124,19 +106,28 @@ spring:
         name: cloud-native-engineering-project-group2-backend
 
     jpa:
+        defer-datasource-initialization: false
         hibernate:
             ddl-auto: update
+        open-in-view: false
+
+    profiles:
+        active: ${SPRING_PROFILES_ACTIVE:dev}
+
+    data:
+        mongodb:
+            auto-index-creation: true
 
     mongodb:
-        uri: mongodb://${DB_USERNAME:admin}:${DB_PASSWORD:password}@${DB_HOST:localhost}:${DB_PORT:27017}/${DB_NAME:artworks}?authSource=admin
+        uri: ${MONGODB_URI:mongodb://mongo:mongo@localhost:27017/cloudnativeengineeringproject?authSource=admin}
 
     servlet:
         multipart:
-            max-file-size: 5MB
-            max-request-size: 20MB
+            max-file-size: ${ARTWORK_IMAGES_MULTIPART_MAX_FILE_SIZE:5MB}
+            max-request-size: ${ARTWORK_IMAGES_MULTIPART_MAX_REQUEST_SIZE:20MB}
 
 server:
-    port: 8080
+    port: ${SERVER_PORT:8080}
 
 springdoc:
     api-docs:
@@ -147,15 +138,31 @@ springdoc:
 
 app:
     cors:
-        allowed-origins: http://localhost:3000
+        allowed-origins: ${FRONTEND_URLS:http://localhost:3000,http://localhost:3001}
     blob:
-        connection-string: ${AZURITE_CONNECTION_STRING:}
-        container-name: artworks
+        connection-string: ${AZURITE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;}
+        container-name: ${AZURITE_BLOB_CONTAINER:artworks}
     artwork-images:
-        max-images-per-artwork: 10
-        max-file-size-bytes: 5242880
-        max-total-upload-size-bytes: 20971520
-        thumbnail-max-width: 300
+        max-images-per-artwork: ${ARTWORK_IMAGES_MAX_PER_ARTWORK:1}
+        max-file-size-bytes: ${ARTWORK_IMAGES_MAX_FILE_SIZE_BYTES:5242880}
+        max-total-upload-size-bytes: ${ARTWORK_IMAGES_MAX_TOTAL_UPLOAD_SIZE_BYTES:5242880}
+        thumbnail-max-width: ${ARTWORK_IMAGES_THUMBNAIL_MAX_WIDTH:300}
+
+---
+spring:
+    config:
+        activate:
+            on-profile: dev
+---
+spring:
+    config:
+        activate:
+            on-profile: prod
+app:
+    cookie:
+        domain: ${COOKIE_DOMAIN:}
+        same-site: Strict
+
 ```
 
 ---
@@ -166,13 +173,13 @@ The application uses **MongoDB** and we will use docker to run it locally so **m
 2. Run the following to install and run the docker image
 
 ```sh
-docker-compose up -d
+docker compose up -d
 ```
 
 3. Run the following to stop the container
 
 ```sh
-docker-compose down
+docker compose down
 ```
 
 ---
@@ -201,18 +208,23 @@ wrapper, but make sure you are in the `backend/` directory so dotenv finds the `
 ### Starting the back-end
 
 > ### Make sure the docker container is running before you run the backend
->
-> ```bash
-> cd backend
-> ./mvnw spring-boot:run
-> ```
->
-> On Windows:
->
-> ```bat
-> cd backend
-> mvnw.cmd spring-boot:run
-> ```
+
+1. Run Spring Boot. By default uses local databases defined in application.yaml
+
+```sh
+cd backend
+./mvnw spring-boot:run
+```
+
+2. To run with production database:
+
+```sh
+cd backend
+$env:SPRING_PROFILES_ACTIVE = "prod"
+$env:MONGODB_URI = "string"
+$env:AZURITE_CONNECTION_STRING = "otherstring"
+./mvnw spring-boot:run
+```
 
 ### Starting the front-end
 
