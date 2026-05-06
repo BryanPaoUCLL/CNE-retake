@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import { AccountDto } from "../types";
 import AuthService from "../services/auth.service";
 import AccountService from "../services/account.service";
@@ -18,22 +18,28 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<AccountDto | null>(null);
 	const [loading, setLoading] = useState(true);
+	const refreshPromise = useRef<Promise<void> | null>(null);
 
 	const refreshUser = useCallback(async () => {
-		try {
-			const res = await AuthService.status();
-			if (res.ok) {
-				const meRes = await AccountService.me();
-				if (meRes.ok) {
-					setUser(await meRes.json());
+		if (refreshPromise.current) return refreshPromise.current;
+		const promise = (async () => {
+			try {
+				const res = await AuthService.status();
+				if (res.ok) {
+					const meRes = await AccountService.me();
+					setUser(meRes.ok ? await meRes.json() : null);
 				} else {
 					setUser(null);
 				}
-			} else {
+			} catch {
 				setUser(null);
 			}
-		} catch {
-			setUser(null);
+		})();
+		refreshPromise.current = promise;
+		try {
+			await promise;
+		} finally {
+			refreshPromise.current = null;
 		}
 	}, []);
 

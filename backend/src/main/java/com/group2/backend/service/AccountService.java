@@ -6,6 +6,9 @@ import com.group2.backend.dto.AccountSummaryDto;
 import com.group2.backend.dto.AccountUpdateDto;
 import com.group2.backend.exception.service.ServiceException;
 import com.group2.backend.model.Account;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +30,14 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
 
 
+    @Cacheable("allAccounts")
     public List<AccountSummaryDto> getAccounts() {
         return accountRepository.findAll().stream()
                 .map(Account::toSummaryDto)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "accounts", key = "#id")
     public AccountDto getAccount(String id) {
         Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new ServiceException("Account not found", HttpStatus.NOT_FOUND));
@@ -45,6 +50,7 @@ public class AccountService {
         return currentAccount.toDto();
     }
 
+    @CacheEvict(value = "allAccounts", allEntries = true)
     public AccountDto createAccount(AccountCreateDto body) {
         if (accountRepository.existsByUsername(body.getUsername())) {
             throw new ServiceException("Account with username already exists", HttpStatus.BAD_REQUEST);
@@ -70,6 +76,10 @@ public class AccountService {
     /**
      * Update the currently authenticated user's profile (email, username).
      */
+    @Caching(evict = {
+        @CacheEvict(value = "accounts", allEntries = true),
+        @CacheEvict(value = "allAccounts", allEntries = true)
+    })
     public AccountDto updateCurrentAccount(AccountUpdateDto body) {
         Account currentAccount = authService.getAccountFromRequest();
 

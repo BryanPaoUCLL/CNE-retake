@@ -13,6 +13,8 @@ import com.group2.backend.model.Tag;
 import com.group2.backend.repository.ArtworkImageRepository;
 import com.group2.backend.repository.ArtworkRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +55,7 @@ public class ArtworkService {
         return toDto(saved);
     }
 
+    @CacheEvict(value = "accountArtworks", allEntries = true)
     public ArtworkDto createArtwork(ArtworkCreateDto body) {
         validateCreateBody(body);
         Account creator = authService.getAccountFromRequest();
@@ -70,6 +73,7 @@ public class ArtworkService {
         return toDto(saved);
     }
 
+    @CacheEvict(value = "accountArtworks", allEntries = true)
     public ArtworkDto updateArtwork(String id, ArtworkUpdateDto body) {
         Artwork artwork = artworkRepository.findById(id)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
@@ -100,6 +104,7 @@ public class ArtworkService {
         return toDto(saved);
     }
 
+    @CacheEvict(value = "accountArtworks", allEntries = true)
     public void deleteArtwork(String id) {
         Artwork artwork = artworkRepository.findById(id)
             .orElseThrow(() -> new ServiceException("Artwork not found", HttpStatus.NOT_FOUND));
@@ -147,6 +152,7 @@ public class ArtworkService {
             .toList();
     }
 
+    @Cacheable("trendingArtworks")
     public List<ArtworkSummaryDto> trending() {
         return artworkRepository.findTop10ByOrderByViewsDesc()
             .stream()
@@ -154,6 +160,7 @@ public class ArtworkService {
             .toList();
     }
 
+    @Cacheable(value = "accountArtworks", key = "#accountId")
     public List<ArtworkSummaryDto> listByAccount(String accountId) {
         return artworkRepository.findByCreatorId(accountId)
             .stream()

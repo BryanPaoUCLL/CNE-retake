@@ -8,6 +8,9 @@ import com.group2.backend.repository.ArtworkRepository;
 import com.group2.backend.repository.TagAliasRepository;
 import com.group2.backend.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,10 @@ public class TagService {
     private final TagAliasRepository tagAliasRepository;
     private final ArtworkRepository artworkRepository;
 
+    @Caching(evict = {
+        @CacheEvict(value = "tagSuggestions", allEntries = true),
+        @CacheEvict(value = "popularTags", allEntries = true)
+    })
     public List<Tag> resolveCanonicalTags(List<String> inputTags) {
         if (inputTags == null || inputTags.isEmpty()) return List.of();
 
@@ -50,6 +57,7 @@ public class TagService {
         return resolveCanonicalTags(inputTags).stream().map(Tag::getName).toList();
     }
 
+    @Cacheable(value = "tagSuggestions", key = "#query == null ? '' : #query.trim()")
     @Transactional(readOnly = true)
     public List<TagSuggestionDto> suggestTags(String query) {
         String trimmed = query == null ? "" : query.trim();
@@ -80,6 +88,7 @@ public class TagService {
             .toList();
     }
 
+    @Cacheable(value = "popularTags", key = "#limit == null ? 10 : #limit")
     @Transactional(readOnly = true)
     public List<TagSuggestionDto> popularTags(Integer limit) {
         int effectiveLimit = (limit == null || limit <= 0) ? DEFAULT_POPULAR_TAG_LIMIT : Math.min(limit, 50);
