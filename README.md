@@ -1,12 +1,11 @@
 # CNE-project
 
-Repository for CNE group 2
-
+Repository for CNE retake - Bryan Pao
 note: Starting Point commit got shuffled due to branch merges, actual starting point is "Merge branch 'main' into cloud-migration"
 
 ---
 
-# Galerique — Cloud Native Engineering Project (Group 2)
+# Galerique — Cloud Native Engineering Project
 
 Galerique is a luxury digital art gallery platform. Artists can upload and sell digital artworks; collectors can browse, like and purchase them. The project consists of a Spring Boot REST API backend and a Next.js frontend.
 
@@ -97,7 +96,6 @@ Make sure the following are installed before setting up the project:
 
 ### Back-end setup
 
-
 1. Create an application.yaml in `backend/src/main/resources/`
 
 ```yaml
@@ -162,7 +160,6 @@ app:
     cookie:
         domain: ${COOKIE_DOMAIN:}
         same-site: Strict
-
 ```
 
 ---
