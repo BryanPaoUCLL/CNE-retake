@@ -26,6 +26,17 @@ spring:
 server:
     port: ${SERVER_PORT:8080}
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health
+    endpoint:
+        health:
+            show-details: never
+            probes:
+                enabled: true
+
 springdoc:
     api-docs:
         path: /v3/api-docs
@@ -41,6 +52,9 @@ app:
         container-name: ${AZURE_STORAGE_CONTAINER:${AZURITE_BLOB_CONTAINER:artworks}}
     seeding:
         enabled: ${APP_SEEDING_ENABLED:false}
+    cookie:
+        domain: ${COOKIE_DOMAIN:}
+        same-site: ${COOKIE_SAME_SITE:Strict}
     artwork-images:
         max-images-per-artwork: ${ARTWORK_IMAGES_MAX_PER_ARTWORK:1}
         max-file-size-bytes: ${ARTWORK_IMAGES_MAX_FILE_SIZE_BYTES:5242880}
@@ -59,5 +73,4 @@ spring:
             on-profile: prod
 app:
     cookie:
-        domain: ${COOKIE_DOMAIN:}
-        same-site: Strict
+        same-site: ${COOKIE_SAME_SITE:None}

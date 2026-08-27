@@ -3,4 +3,8 @@ Dockerfile
 target/
 .env
 .mvn/
+.git/
+.idea/
+.vscode/
+src/main/resources/seed/
 *.md

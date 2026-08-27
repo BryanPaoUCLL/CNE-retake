@@ -35,7 +35,9 @@ public class SecurityConfig {
                     "/studio/forms/*/public/**",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
-                    "/swagger-ui.html"
+                    "/swagger-ui.html",
+                    "/actuator/health",
+                    "/actuator/health/**"
                 ).permitAll()
                 // Public registration
                 .requestMatchers(HttpMethod.POST, "/accounts").permitAll()
