@@ -19,6 +19,7 @@ import com.group2.backend.service.BlobStorageService;
 import com.group2.backend.service.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @Profile("dev")
+@ConditionalOnProperty(name = "app.seeding.enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class DatabaseSeeder implements CommandLineRunner {
 
