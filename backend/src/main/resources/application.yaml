@@ -52,6 +52,8 @@ app:
         container-name: ${AZURE_STORAGE_CONTAINER:${AZURITE_BLOB_CONTAINER:artworks}}
     seeding:
         enabled: ${APP_SEEDING_ENABLED:false}
+    seed-image-backfill:
+        enabled: ${APP_SEED_IMAGE_BACKFILL_ENABLED:false}
     cookie:
         domain: ${COOKIE_DOMAIN:}
         same-site: ${COOKIE_SAME_SITE:Strict}

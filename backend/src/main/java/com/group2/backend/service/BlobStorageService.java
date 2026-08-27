@@ -40,6 +40,13 @@ public class BlobStorageService {
         blobClient.setHttpHeaders(new BlobHttpHeaders().setContentType(contentType));
     }
 
+    public boolean exists(String blobName) {
+        if (blobName == null || blobName.isBlank()) {
+            return false;
+        }
+        return containerClient.getBlobClient(blobName).exists();
+    }
+
     public void deleteIfExists(String blobName) {
         if (blobName == null || blobName.isBlank()) {
             return;
