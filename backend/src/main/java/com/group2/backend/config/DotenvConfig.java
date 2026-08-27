@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.Profiles;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,12 @@ public class DotenvConfig implements ApplicationContextInitializer<ConfigurableA
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
+        // Automated tests must use their explicit test configuration rather than
+        // credentials from a developer's local .env file.
+        if (environment.acceptsProfiles(Profiles.of("test"))) {
+            return;
+        }
         
         Dotenv dotenv = Dotenv.configure()
                 .ignoreIfMissing()
