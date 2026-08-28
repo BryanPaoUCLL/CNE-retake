@@ -1,6 +1,7 @@
 package com.group2.backend.audit;
 
 import com.azure.storage.queue.QueueClient;
+import com.azure.storage.queue.QueueClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 class AzureQueueAuditEventPublisherTest {
+    private static final String AZURITE_CONNECTION_STRING =
+        "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;" +
+        "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/" +
+        "K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;";
+
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
     private final QueueClient queueClient = mock(QueueClient.class);
     private final AzureQueueAuditEventPublisher publisher =
@@ -42,5 +48,13 @@ class AzureQueueAuditEventPublisherTest {
             "purchase-1",
             "artwork-1"
         )));
+    }
+
+    @Test
+    void blobAndQueueSdkVersionsAreBinaryCompatible() {
+        assertDoesNotThrow(() -> new QueueClientBuilder()
+            .connectionString(AZURITE_CONNECTION_STRING)
+            .queueName("audit-events")
+            .buildClient());
     }
 }
