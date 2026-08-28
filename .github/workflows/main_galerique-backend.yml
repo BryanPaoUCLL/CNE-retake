@@ -20,6 +20,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+
+      - name: Run backend tests
+        run: mvn --batch-mode --file backend/pom.xml test
+
       - name: Set up Docker Build
         uses: docker/setup-buildx-action@v3
 
