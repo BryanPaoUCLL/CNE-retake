@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.support.SimpleCacheManager;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
+@ConditionalOnProperty(name = "app.cache.type", havingValue = "caffeine", matchIfMissing = true)
 public class CacheConfig {
 
     @Bean

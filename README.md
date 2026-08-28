@@ -22,7 +22,7 @@ The deployed design, decision trade-offs, scaling model, security model, cost co
 | Event processing | Azure Functions Consumption, Java 21 |
 | Database | Azure Cosmos DB for MongoDB RU, serverless |
 | Object and event storage | Azure Blob, Queue, and Table Storage |
-| Cache | In-process Caffeine caches |
+| Cache | Azure Managed Redis in production; Caffeine for local fallback |
 | Container registry | GitHub Container Registry |
 | Delivery | GitHub Actions with Azure OIDC |
 | Observability | Log Analytics and Spring Boot Actuator |
@@ -49,6 +49,15 @@ SPRING_PROFILES_ACTIVE=dev
 MONGODB_URI=mongodb://mongo:mongo@localhost:27017/cloudnativeengineeringproject?authSource=admin
 AZURITE_BLOB_CONTAINER=artworks
 APP_SEEDING_ENABLED=false
+```
+
+Caffeine is used locally by default. To test the distributed Redis configuration against the Docker service, also set:
+
+```dotenv
+APP_CACHE_TYPE=redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_SSL=false
 ```
 
 Start the backend:
@@ -100,6 +109,12 @@ Important configuration names include:
 - `AZURE_STORAGE_CONTAINER`
 - `APP_AUDIT_ENABLED`
 - `AZURE_STORAGE_AUDIT_QUEUE`
+- `APP_CACHE_TYPE`
+- `REDIS_HOST`
+- `REDIS_PORT`
+- `REDIS_PASSWORD`
+- `REDIS_SSL`
+- `REDIS_HEALTH_ENABLED`
 - `FRONTEND_URLS`
 - `SPRING_PROFILES_ACTIVE`
 - `APP_SEEDING_ENABLED`

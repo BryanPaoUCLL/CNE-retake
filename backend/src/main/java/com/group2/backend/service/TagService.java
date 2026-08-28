@@ -85,7 +85,7 @@ public class TagService {
                 .description(tag.getDescription())
                 .usageCount(tag.getUsageCount())
                 .build())
-            .toList();
+            .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
     }
 
     @Cacheable(value = "popularTags", key = "#limit == null ? 10 : #limit")
@@ -104,7 +104,7 @@ public class TagService {
                 .description(tag.getDescription())
                 .usageCount(tag.getUsageCount())
                 .build())
-            .toList();
+            .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
     }
 
     @Transactional(readOnly = true)

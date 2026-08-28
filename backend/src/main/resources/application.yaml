@@ -14,6 +14,14 @@ spring:
     data:
         mongodb:
             auto-index-creation: true
+        redis:
+            host: ${REDIS_HOST:localhost}
+            port: ${REDIS_PORT:6379}
+            password: ${REDIS_PASSWORD:}
+            ssl:
+                enabled: ${REDIS_SSL:false}
+            connect-timeout: 2s
+            timeout: 2s
 
     mongodb:
         uri: ${MONGODB_URI:mongodb://mongo:mongo@localhost:27017/cloudnativeengineeringproject?authSource=admin}
@@ -36,6 +44,9 @@ management:
             show-details: never
             probes:
                 enabled: true
+    health:
+        redis:
+            enabled: ${REDIS_HEALTH_ENABLED:false}
 
 springdoc:
     api-docs:
@@ -53,6 +64,8 @@ app:
     audit:
         enabled: ${APP_AUDIT_ENABLED:false}
         queue-name: ${AZURE_STORAGE_AUDIT_QUEUE:audit-events}
+    cache:
+        type: ${APP_CACHE_TYPE:caffeine}
     seeding:
         enabled: ${APP_SEEDING_ENABLED:false}
     seed-image-backfill:

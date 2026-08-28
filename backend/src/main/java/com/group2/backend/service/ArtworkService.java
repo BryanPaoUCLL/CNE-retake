@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -167,7 +168,7 @@ public class ArtworkService {
         return artworkRepository.findTop10ByOrderByViewsDesc()
             .stream()
             .map(this::toSummaryDto)
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Cacheable(value = "accountArtworks", key = "#accountId")
@@ -175,7 +176,7 @@ public class ArtworkService {
         return artworkRepository.findByCreatorId(accountId)
             .stream()
             .map(this::toSummaryDto)
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private ArtworkDto toDto(Artwork artwork) {
