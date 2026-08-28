@@ -49,8 +49,10 @@ public class AuthService {
      * Returns generated token uid when successful
      */
     @Transactional
-    public String authenticate(String email, String password, int ttlSeconds) {
-        Account account = accountRepository.findByEmail(email)
+    public String authenticate(String identifier, String password, int ttlSeconds) {
+        String normalizedIdentifier = identifier.trim();
+        Account account = accountRepository.findByEmail(normalizedIdentifier)
+            .or(() -> accountRepository.findByUsername(normalizedIdentifier))
             .orElseThrow(() -> new AuthException("Invalid credentials"));
 
         boolean verified = false;
@@ -84,13 +86,13 @@ public class AuthService {
      * Public login helper which validates input and delegates to authenticate
      */
     @Transactional
-    public String login(String email, String password, boolean remember) {
-        if (email == null || email.isBlank() || password == null || password.isBlank()) {
-            throw new ModelException("email and password required");
+    public String login(String identifier, String password, boolean remember) {
+        if (identifier == null || identifier.isBlank() || password == null || password.isBlank()) {
+            throw new ModelException("identifier and password required");
         }
 
         int ttl = remember ? REMEMBER_TTL_SECONDS : DEFAULT_TTL_SECONDS;
-        return authenticate(email, password, ttl);
+        return authenticate(identifier, password, ttl);
     }
 
     /**
@@ -99,9 +101,9 @@ public class AuthService {
      * Sends login notification email on success.
      */
     @Transactional
-    public void loginAndSetCookie(String email, String password, boolean remember) {
+    public void loginAndSetCookie(String identifier, String password, boolean remember) {
         int ttl = remember ? REMEMBER_TTL_SECONDS : DEFAULT_TTL_SECONDS;
-        String uid = login(email, password, remember);
+        String uid = login(identifier, password, remember);
         HttpServletResponse response = getCurrentResponse();
         setCookie(response, COOKIE_NAME, uid, ttl);
     }
