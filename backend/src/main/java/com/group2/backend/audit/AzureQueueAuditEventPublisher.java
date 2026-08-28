@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class AzureQueueAuditEventPublisher implements AuditEventPublisher {
     private final ObjectMapper objectMapper;
     private final QueueClient queueClient;
 
+    @Autowired
     public AzureQueueAuditEventPublisher(
         ObjectMapper objectMapper,
         @Value("${app.blob.connection-string}") String connectionString,
