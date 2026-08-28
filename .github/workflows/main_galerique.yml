@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/main_galerique.yml"
   workflow_dispatch:
 
 jobs:
@@ -12,6 +15,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -39,4 +43,20 @@ jobs:
           push: true
           build-args: |
             NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
-          tags: ghcr.io/${{ env.OWNER_LC }}/cne-galerique:latest
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/cne-galerique:latest
+            ghcr.io/${{ env.OWNER_LC }}/cne-galerique:${{ github.sha }}
+
+      - name: Log in to Azure with GitHub OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy frontend to Azure Container Apps
+        run: |
+          az containerapp update \
+            --name cne-retake-frontend \
+            --resource-group CNE-retake \
+            --image ghcr.io/${{ env.OWNER_LC }}/cne-galerique:${{ github.sha }}
