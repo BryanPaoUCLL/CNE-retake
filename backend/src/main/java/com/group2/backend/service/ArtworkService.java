@@ -1,5 +1,8 @@
 package com.group2.backend.service;
 
+import com.group2.backend.audit.AuditEvent;
+import com.group2.backend.audit.AuditEventPublisher;
+import com.group2.backend.audit.AuditEventType;
 import com.group2.backend.dto.ArtworkCreateDto;
 import com.group2.backend.dto.ArtworkDto;
 import com.group2.backend.dto.ArtworkImageDto;
@@ -40,6 +43,7 @@ public class ArtworkService {
     private final BlobStorageService blobStorageService;
     private final ArtworkImageService artworkImageService;
     private final TagService tagService;
+    private final AuditEventPublisher auditEventPublisher;
 
     public Page<ArtworkSummaryDto> listArtworks(int page, int size, String sort) {
         Pageable pageable = buildPageable(page, size, sort);
@@ -70,6 +74,12 @@ public class ArtworkService {
             .build();
 
         Artwork saved = artworkRepository.save(toCreate);
+        auditEventPublisher.publish(AuditEvent.create(
+            AuditEventType.ARTWORK_CREATED,
+            creator.getId(),
+            saved.getId(),
+            null
+        ));
         return toDto(saved);
     }
 

@@ -19,8 +19,9 @@ The deployed design, decision trade-offs, scaling model, security model, cost co
 | Frontend | Next.js 16 and React 19 |
 | Backend | Spring Boot 4 and Java 21 |
 | Compute | Azure Container Apps Consumption |
+| Event processing | Azure Functions Consumption, Java 21 |
 | Database | Azure Cosmos DB for MongoDB RU, serverless |
-| Image storage | Azure Blob Storage |
+| Object and event storage | Azure Blob, Queue, and Table Storage |
 | Cache | In-process Caffeine caches |
 | Container registry | GitHub Container Registry |
 | Delivery | GitHub Actions with Azure OIDC |
@@ -97,6 +98,8 @@ Important configuration names include:
 - `MONGODB_URI`
 - `AZURE_STORAGE_CONNECTION_STRING`
 - `AZURE_STORAGE_CONTAINER`
+- `APP_AUDIT_ENABLED`
+- `AZURE_STORAGE_AUDIT_QUEUE`
 - `FRONTEND_URLS`
 - `SPRING_PROFILES_ACTIVE`
 - `APP_SEEDING_ENABLED`
@@ -111,5 +114,6 @@ A push to `main` triggers path-filtered workflows:
 
 - Backend changes run Maven tests, build the backend image, push `latest` and commit-SHA tags, then deploy `cne-retake-backend`.
 - Frontend changes run ESLint, build the frontend image with its public backend URL, push `latest` and commit-SHA tags, then deploy `cne-retake-frontend`.
+- Audit Function changes run its Java tests, create the Azure Functions package, then deploy `cne-retake-audit-bp`.
 
 GitHub authenticates to Azure using short-lived OIDC tokens through the `github-cne-retake-deployer` managed identity. No Azure client secret is stored in GitHub.

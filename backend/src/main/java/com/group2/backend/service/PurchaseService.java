@@ -1,5 +1,8 @@
 package com.group2.backend.service;
 
+import com.group2.backend.audit.AuditEvent;
+import com.group2.backend.audit.AuditEventPublisher;
+import com.group2.backend.audit.AuditEventType;
 import com.group2.backend.dto.PurchaseDto;
 import com.group2.backend.dto.ArtworkSummaryDto;
 import com.group2.backend.exception.service.ServiceException;
@@ -27,6 +30,7 @@ public class PurchaseService {
     private final ArtworkImageRepository artworkImageRepository;
     private final AuthService authService;
     private final BlobStorageService blobStorageService;
+    private final AuditEventPublisher auditEventPublisher;
 
     public PurchaseDto createPurchase(String artworkId) {
         Artwork artwork = artworkRepository.findById(artworkId)
@@ -50,6 +54,12 @@ public class PurchaseService {
         Purchase saved = purchaseRepository.save(purchase);
         artwork.setSold(true);
         artworkRepository.save(artwork);
+        auditEventPublisher.publish(AuditEvent.create(
+            AuditEventType.PURCHASE_CREATED,
+            buyer.getId(),
+            saved.getId(),
+            artwork.getId()
+        ));
         return toDto(saved);
     }
 

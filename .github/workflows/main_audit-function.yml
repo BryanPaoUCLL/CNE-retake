@@ -1,0 +1,44 @@
+name: Test and deploy audit Azure Function
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "functions/audit-processor/**"
+      - ".github/workflows/main_audit-function.yml"
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: functions/audit-processor/pom.xml
+
+      - name: Test and package Function
+        run: mvn --batch-mode --file functions/audit-processor/pom.xml test package
+
+      - name: Log in to Azure with GitHub OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Function
+        uses: Azure/functions-action@v1
+        with:
+          app-name: cne-retake-audit-bp
+          package: functions/audit-processor/target/azure-functions/cne-retake-audit-bp

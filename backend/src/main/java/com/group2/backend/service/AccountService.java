@@ -1,5 +1,8 @@
 package com.group2.backend.service;
 
+import com.group2.backend.audit.AuditEvent;
+import com.group2.backend.audit.AuditEventPublisher;
+import com.group2.backend.audit.AuditEventType;
 import com.group2.backend.dto.AccountCreateDto;
 import com.group2.backend.dto.AccountDto;
 import com.group2.backend.dto.AccountSummaryDto;
@@ -28,6 +31,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
+    private final AuditEventPublisher auditEventPublisher;
 
 
     @Cacheable("allAccounts")
@@ -70,6 +74,12 @@ public class AccountService {
             .build();
 
         Account saved = accountRepository.save(newAccount);
+        auditEventPublisher.publish(AuditEvent.create(
+            AuditEventType.ACCOUNT_CREATED,
+            saved.getId(),
+            saved.getId(),
+            null
+        ));
         return saved.toDto();
     }
 

@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "java",
+    "AUDIT_QUEUE_NAME": "audit-events",
+    "AUDIT_TABLE_NAME": "auditEvents"
+  }
+}
